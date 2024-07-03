@@ -14,7 +14,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Clients always created for v5 persistence format, making it universal for any connection.
     - If the application specifies a version it is kept as a hint for default connections.
     - The version for the connection should be specified in the connect options.
-- Reformat the sources and added a .clang-format file (a project master and a slightly-different one for headers).
+- The `create_options` now have all the parameters to create a client.
+    - Can specify Server URL, Client ID, and persistence in the create options.
+    - New client constructor that takes just the options object
+    - The client caches a const `create_options` struct with all the creation parameters
+    - Client creation internally simplified without breaking the public API
+- There's a new `persistence_type` (std::variant) that can hold any of the persistence specifiers (none, file directory, or user interface).
+- Most of the class static constants are now `constexpr`.
+- Removed the fake `ReasonCode::MQTTPP_V3_CODE`. Now all reason codes in a v3 connection are SUCCESS.
+- The `mqtt::exception` checks if the 'rc' return code actually contains a reason code error, amd if so, sets it as the reason code.
+- `property` can now report the `typeid` of its contained value.
+- The `properties` list implements a const iterator
+- Completely reformat the sources and added a .clang-format file (a project master and a slightly-different one for headers).
+- Added GitHub CI Action, removing legacy Travis and Appveyor files
 
 ## [Version 1.4.0](https://github.com/eclipse/paho.mqtt.cpp/compare/v1.3.2..v1.4.0) - (2024-06-16)
 
