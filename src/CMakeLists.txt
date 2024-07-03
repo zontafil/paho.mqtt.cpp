@@ -7,7 +7,7 @@
 
 #*******************************************************************************
 # Copyright (c) 2016-2017, Guilherme Maciel Ferreira
-# Copyright (c) 2017-2023, Frank Pagliughi
+# Copyright (c) 2017-2024, Frank Pagliughi
 #
 #  All rights reserved. This program and the accompanying materials
 #  are made available under the terms of the Eclipse Public License v2.0
@@ -96,22 +96,29 @@ endif()
 include(GNUInstallDirs)
 
 foreach(TARGET ${PAHO_CPP_TARGETS})
-  ## Build warnings
-  target_compile_options(${TARGET} PRIVATE
-    $<$<CXX_COMPILER_ID:MSVC>:/W3>
-    $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -Wdocumentation>
-    $<$<NOT:$<OR:$<CXX_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:Clang>>>:-Wall -Wextra>
-  )
+    target_compile_features(${TARGET} PRIVATE cxx_std_17)
 
-  target_include_directories(${TARGET} PUBLIC
-      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-      $<INSTALL_INTERFACE:include>
-  )
+    set_target_properties(${TARGET} PROPERTIES
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+    )
 
-  ## install the shared library
-  install(TARGETS ${TARGET} EXPORT PahoMqttCpp
-      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  )
+    ## Build warnings
+    target_compile_options(${TARGET} PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/W3>
+        $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -Wdocumentation>
+        $<$<NOT:$<OR:$<CXX_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:Clang>>>:-Wall -Wextra>
+    )
+
+    target_include_directories(${TARGET} PUBLIC
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+    )
+
+    ## install the shared library
+    install(TARGETS ${TARGET} EXPORT PahoMqttCpp
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
 endforeach()

@@ -67,6 +67,13 @@ message(STATUS "Using library for unit tests: ${PAHO_CPP_LIB}")
 
 target_link_libraries(unit_tests ${PAHO_CPP_LIB} Catch2::Catch2)
 
+target_compile_features(unit_tests PRIVATE cxx_std_17)
+
+set_target_properties(unit_tests PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+)
+
 if(PAHO_BUILD_SHARED)
     target_compile_definitions(unit_tests PUBLIC PAHO_MQTTPP_IMPORTS)
 

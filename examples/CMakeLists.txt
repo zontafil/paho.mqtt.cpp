@@ -59,6 +59,14 @@ set(SSL_EXECUTABLES
 foreach(EXECUTABLE ${EXECUTABLES})
     add_executable(${EXECUTABLE} ${EXECUTABLE}.cpp)
     target_link_libraries(${EXECUTABLE} ${PAHO_CPP_LIB})
+
+    target_compile_features(${EXECUTABLE} PRIVATE cxx_std_17)
+
+    set_target_properties(${EXECUTABLE} PROPERTIES
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+    )
+
     if(PAHO_BUILD_SHARED)
         target_compile_definitions(${EXECUTABLE} PRIVATE PAHO_MQTTPP_IMPORTS)
     endif()
@@ -74,6 +82,14 @@ if(PAHO_WITH_SSL)
     foreach(EXECUTABLE ${SSL_EXECUTABLES})
         add_executable(${EXECUTABLE} ${EXECUTABLE}.cpp)
         target_link_libraries(${EXECUTABLE} ${PAHO_CPP_LIB})
+
+        target_compile_features(${EXECUTABLE} PRIVATE cxx_std_17)
+
+        set_target_properties(${EXECUTABLE} PROPERTIES
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+        )
+
         if(PAHO_BUILD_SHARED)
             target_compile_definitions(${EXECUTABLE} PRIVATE PAHO_MQTTPP_IMPORTS)
         endif()

@@ -100,15 +100,6 @@ else()
     find_package(eclipse-paho-mqtt-c REQUIRED)
 endif()
 
-## --- C++17 build flags ---
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-# Generate position-independent code (-fPIC on UNIX)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
 # --- System Details ---
 
 include(GNUInstallDirs)
@@ -118,8 +109,6 @@ if(WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
     set(LIBS_SYSTEM ws2_32)
 endif()
-
-## --- Build directories ---
 
 # --- The headers ---
 
