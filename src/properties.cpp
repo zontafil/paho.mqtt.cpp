@@ -58,9 +58,11 @@ property::property(code c, int32_t val)
 
     switch (::MQTTProperty_getType(prop_.identifier)) {
         case MQTTPROPERTY_TYPE_BYTE:
+            prop_.value.integer4 = 0;
             prop_.value.byte = uint8_t(val);
             break;
         case MQTTPROPERTY_TYPE_TWO_BYTE_INTEGER:
+            prop_.value.integer4 = 0;
             prop_.value.integer2 = uint16_t(val);
             break;
         case MQTTPROPERTY_TYPE_FOUR_BYTE_INTEGER:
@@ -199,7 +201,13 @@ std::ostream& operator<<(std::ostream& os, const property& prop)
 
     switch (::MQTTProperty_getType(MQTTPropertyCodes(prop.type()))) {
         case MQTTPROPERTY_TYPE_BYTE:
+            os << get<uint8_t>(prop);
+            break;
+
         case MQTTPROPERTY_TYPE_TWO_BYTE_INTEGER:
+            os << get<uint16_t>(prop);
+            break;
+
         case MQTTPROPERTY_TYPE_FOUR_BYTE_INTEGER:
         case MQTTPROPERTY_TYPE_VARIABLE_BYTE_INTEGER:
             os << get<uint32_t>(prop);
