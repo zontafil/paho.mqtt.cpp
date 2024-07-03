@@ -1,6 +1,6 @@
 # CMakeLists.txt
 #
-# CMake file for the Paho C++ sample applications.
+# CMake file for the Paho C++ example applications.
 #
 #*******************************************************************************
 # This is part of the Paho MQTT C++ client library.
@@ -20,8 +20,6 @@
 #   Guilherme Maciel Ferreira - initial version
 #   Frank Pagliughi - Updates for new samples
 #*******************************************************************************/
-
-## Note: on OS X you should install XCode and the associated command-line tools
 
 ## --- Library dependencies ---
 
@@ -51,12 +49,12 @@ set(EXECUTABLES
 )
 
 # These will only be built if SSL selected
-set(SSL_EXECUTABLES
-    ssl_publish
-)
+if(PAHO_WITH_SSL)
+    set(SSL_EXECUTABLES ssl_publish)
+endif()
 
-## Build the samples
-foreach(EXECUTABLE ${EXECUTABLES})
+## Build the example apps
+foreach(EXECUTABLE ${EXECUTABLES} ${SSL_EXECUTABLES})
     add_executable(${EXECUTABLE} ${EXECUTABLE}.cpp)
     target_link_libraries(${EXECUTABLE} ${PAHO_CPP_LIB})
 
@@ -72,32 +70,17 @@ foreach(EXECUTABLE ${EXECUTABLES})
     endif()
 endforeach()
 
+## Extra configuration for the SSL/TLS examples, if selected
+foreach(EXECUTABLE ${SSL_EXECUTABLES})
+    target_compile_definitions(${EXECUTABLE} PUBLIC OPENSSL)
+endforeach()
+
 ## install binaries
-install(TARGETS ${EXECUTABLES} EXPORT PahoMqttCppSamples
-    RUNTIME DESTINATION bin
+include(GNUInstallDirs)
+
+install(TARGETS ${EXECUTABLES} ${SSL_EXECUTABLES}
+    EXPORT PahoMqttCppSamples
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-## Build the SSL/TLS samples, if selected
-if(PAHO_WITH_SSL)
-    foreach(EXECUTABLE ${SSL_EXECUTABLES})
-        add_executable(${EXECUTABLE} ${EXECUTABLE}.cpp)
-        target_link_libraries(${EXECUTABLE} ${PAHO_CPP_LIB})
-
-        target_compile_features(${EXECUTABLE} PRIVATE cxx_std_17)
-
-        set_target_properties(${EXECUTABLE} PROPERTIES
-            CXX_STANDARD_REQUIRED ON
-            CXX_EXTENSIONS OFF
-        )
-
-        if(PAHO_BUILD_SHARED)
-            target_compile_definitions(${EXECUTABLE} PRIVATE PAHO_MQTTPP_IMPORTS)
-        endif()
-        target_compile_definitions(${EXECUTABLE} PUBLIC OPENSSL)
-    endforeach()
-
-    install(TARGETS ${SSL_EXECUTABLES} EXPORT PahoMqttCppSamples
-        RUNTIME DESTINATION bin
-    )
-endif()
 
