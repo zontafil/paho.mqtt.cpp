@@ -53,9 +53,9 @@ endif()
 
 if(PAHO_WITH_SSL)
     find_package(OpenSSL REQUIRED)
-    set(PAHO_MQTT_C_LIB paho-mqtt3as)
+    set(PAHO_MQTT_C_LIB eclipse-paho-mqtt-c::paho-mqtt3as)
 else()
-    set(PAHO_MQTT_C_LIB paho-mqtt3a)
+    set(PAHO_MQTT_C_LIB eclipse-paho-mqtt-c::paho-mqtt3a)
 endif()
 
 if(PAHO_WITH_MQTT_C)
@@ -124,14 +124,6 @@ if(PAHO_BUILD_DOCUMENTATION)
     add_subdirectory(doc)
 endif()
 
-# --- Default library for samples and unit tests ---
-
-if(PAHO_BUILD_SHARED)
-    set(PAHO_CPP_LIB paho-mqttpp3)
-else()
-    set(PAHO_CPP_LIB paho-mqttpp3-static)
-endif()
-
 # --- Example Apps ---
 
 if(PAHO_BUILD_SAMPLES OR PAHO_BUILD_EXAMPLES)
@@ -159,6 +151,8 @@ elseif(UNIX)
 endif()
 
 include(CPack)
+
+# --- Export CMake TARGETS ---
 
 add_subdirectory(cmake)
 

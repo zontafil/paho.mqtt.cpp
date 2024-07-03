@@ -56,7 +56,7 @@ endif()
 ## Build the example apps
 foreach(EXECUTABLE ${EXECUTABLES} ${SSL_EXECUTABLES})
     add_executable(${EXECUTABLE} ${EXECUTABLE}.cpp)
-    target_link_libraries(${EXECUTABLE} ${PAHO_CPP_LIB})
+    target_link_libraries(${EXECUTABLE} PahoMqttCpp::paho-mqttpp3)
 
     target_compile_features(${EXECUTABLE} PRIVATE cxx_std_17)
 

@@ -51,21 +51,28 @@ set(COMMON_SRC
 ## --- Build the shared library, if requested ---
 
 if(PAHO_BUILD_SHARED)
-    ## Create the shared library
-    add_library(paho-mqttpp3 SHARED ${COMMON_SRC})
-    list(APPEND PAHO_CPP_TARGETS paho-mqttpp3)
+    message(STATUS "Creating shared library")
 
-    target_compile_definitions(paho-mqttpp3 PRIVATE PAHO_MQTTPP_EXPORTS)
+    ## Create the shared library
+    add_library(paho-mqttpp3-shared SHARED ${COMMON_SRC})
+    list(APPEND PAHO_CPP_TARGETS paho-mqttpp3-shared)
+
+    ## Alias for subdirectory builds
+    add_library(PahoMqttCpp::paho-mqttpp3-shared ALIAS paho-mqttpp3-shared)
+    add_library(PahoMqttCpp::paho-mqttpp3 ALIAS paho-mqttpp3-shared)
+
+    target_compile_definitions(paho-mqttpp3-shared PRIVATE PAHO_MQTTPP_EXPORTS)
 
     ## Add dependencies to the shared library
-    target_link_libraries(paho-mqttpp3 PUBLIC
-        eclipse-paho-mqtt-c::${PAHO_MQTT_C_LIB}
+    target_link_libraries(paho-mqttpp3-shared PUBLIC
+        ${PAHO_MQTT_C_LIB}
         Threads::Threads
         ${LIBS_SYSTEM}
     )
 
     ## set the shared library soname
-    set_target_properties(paho-mqttpp3 PROPERTIES
+    set_target_properties(paho-mqttpp3-shared PROPERTIES
+        OUTPUT_NAME paho-mqttpp3
         VERSION ${PROJECT_VERSION}
         SOVERSION ${PROJECT_VERSION_MAJOR}
     )
@@ -74,16 +81,27 @@ endif()
 ## --- Build static version of the library, if requested ---
 
 if(PAHO_BUILD_STATIC)
-    ## create the static library
+    ## Create the static library
     add_library(paho-mqttpp3-static STATIC ${COMMON_SRC})
     list(APPEND PAHO_CPP_TARGETS paho-mqttpp3-static)
 
-    ## add dependencies to the shared library
+    ## Alias for subdirectory builds
+    add_library(PahoMqttCpp::paho-mqttpp3-static ALIAS paho-mqttpp3-static)
+
+    ## Add dependencies to the static library
     target_link_libraries(paho-mqttpp3-static PUBLIC 
-        eclipse-paho-mqtt-c::${PAHO_MQTT_C_LIB}-static
+        ${PAHO_MQTT_C_LIB}-static
         Threads::Threads
         ${LIBS_SYSTEM}
     )
+
+    if(${PAHO_BUILD_SHARED})
+        # This lib should configure for static exports
+        target_compile_definitions(paho-mqttpp3-static PRIVATE PAHO_MQTTPP_STATIC)
+    else()
+        # If no shared lib, make this one the default target
+        add_library(PahoMqttCpp::paho-mqttpp3 ALIAS paho-mqttpp3-static)
+    endif()
 
     ## Let the archive use the same base name as the shared lib on *nix systems
     if(UNIX)
