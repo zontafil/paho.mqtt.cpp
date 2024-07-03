@@ -152,6 +152,7 @@ endif()
 # --- Unit Tests ---
 
 if(PAHO_BUILD_TESTS)
+    enable_testing()
     add_subdirectory(test/unit)
 endif()
 
