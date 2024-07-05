@@ -1,5 +1,5 @@
 #*******************************************************************************
-#  Copyright (c) 2016-2024
+#  Copyright (c) 2016-2024  Frank Pagliughi <fpagliughi@mindspring.com>
 # 
 #  All rights reserved. This program and the accompanying materials
 #  are made available under the terms of the Eclipse Public License v2.0
@@ -34,6 +34,7 @@ install(
         message.h
         platform.h
         properties.h
+        reason_code.h
         response_options.h
         server_response.h
         ssl_options.h

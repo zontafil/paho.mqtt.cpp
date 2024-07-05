@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - The `mqtt::exception` checks if the 'rc' return code actually contains a reason code error, amd if so, sets it as the reason code.
 - `property` can now report the `typeid` of its contained value.
 - The `properties` list implements a const iterator
+- Added a `to_string()` and `operator<<()` for reason codes.
 - Completely reformat the sources and added a .clang-format file (a project master and a slightly-different one for headers).
 - Added GitHub CI Action, removing legacy Travis and Appveyor files
 

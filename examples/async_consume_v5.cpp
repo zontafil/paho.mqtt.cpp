@@ -63,7 +63,8 @@ int main(int argc, char* argv[])
         });
 
         cli.set_disconnected_handler([](const mqtt::properties&, mqtt::ReasonCode reason) {
-            cout << "*** Disconnected. Reason: " << reason << " ***" << endl;
+            cout << "*** Disconnected. Reason [0x"
+				<< hex << int{reason} << "]: " << reason << " ***" << endl;
         });
 
         // Start consumer before connecting to make sure to not miss messages
@@ -81,7 +82,7 @@ int main(int argc, char* argv[])
 
         // Make sure we were granted a v5 connection.
         if (rsp.get_mqtt_version() < MQTTVERSION_5) {
-            cout << "Did not get an MQTT v5 connection." << endl;
+            cout << "\n  Did not get an MQTT v5 connection." << flush;
             exit(1);
         }
 
@@ -89,17 +90,17 @@ int main(int argc, char* argv[])
         // there is a session, then the server remembers us and our
         // subscriptions.
         if (!rsp.is_session_present()) {
-            cout << "Session not present on broker. Subscribing." << endl;
+            cout << "\n  Session not present on broker. Subscribing..." << flush;
             cli.subscribe(TOPIC, QOS)->wait();
         }
 
-        cout << "OK" << endl;
+        cout << "\n  OK" << endl;
 
         // Consume messages
         // This just exits if the client is disconnected.
         // (See some other examples for auto or manual reconnect)
 
-        cout << "Waiting for messages on topic: '" << TOPIC << "'" << endl;
+        cout << "\nWaiting for messages on topic: '" << TOPIC << "'" << endl;
 
         while (true) {
             auto msg = cli.consume_message();

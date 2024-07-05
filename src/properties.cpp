@@ -271,5 +271,4 @@ property properties::get(property::code propid, size_t idx /*=0*/)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// end namespace 'mqtt'
 }  // namespace mqtt
