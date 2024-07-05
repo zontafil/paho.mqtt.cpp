@@ -22,16 +22,15 @@ namespace mqtt {
 
 /////////////////////////////////////////////////////////////////////////////
 
-
 std::string to_string(ReasonCode reasonCode)
 {
-	return std::string{MQTTReasonCode_toString(MQTTReasonCodes(reasonCode))};
+    return std::string{MQTTReasonCode_toString(MQTTReasonCodes(reasonCode))};
 }
 
 std::ostream& operator<<(std::ostream& os, ReasonCode reasonCode)
 {
-	os << MQTTReasonCode_toString(MQTTReasonCodes(reasonCode));
-	return os;
+    os << MQTTReasonCode_toString(MQTTReasonCodes(reasonCode));
+    return os;
 }
 
 /////////////////////////////////////////////////////////////////////////////

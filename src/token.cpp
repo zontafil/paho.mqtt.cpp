@@ -259,17 +259,17 @@ void token::reset()
 
 void token::set_action_callback(iaction_listener& listener)
 {
-	unique_lock g{lock_};
-	listener_ = &listener;
+    unique_lock g{lock_};
+    listener_ = &listener;
 
-	if (complete_) {
-		g.unlock();
+    if (complete_) {
+        g.unlock();
 
-		if (rc_ == MQTTASYNC_SUCCESS)
-			listener.on_success(*this);
-		else
-			listener.on_failure(*this);
-	}
+        if (rc_ == MQTTASYNC_SUCCESS)
+            listener.on_success(*this);
+        else
+            listener.on_failure(*this);
+    }
 }
 
 void token::wait()

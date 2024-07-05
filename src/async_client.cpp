@@ -379,20 +379,13 @@ token_ptr async_client::connect(connect_options opts)
 {
     // TODO: We should update the MQTT version from the response
     //  	(when the server confirms the requested version)
-
-    // If the options specified a new MQTT protocol version, we should
-    // use it, otherwise default to the version requested when the client
-    // was created.
-    if (opts.opts_.MQTTVersion == 0 && mqttVersion_ >= 5)
-        opts.opts_.MQTTVersion = mqttVersion_;
-    else
-        mqttVersion_ = opts.opts_.MQTTVersion;
+    mqttVersion_ = opts.opts_.MQTTVersion;
 
     // The C lib is very picky about version and clean start/session
-    if (opts.opts_.MQTTVersion >= 5)
-        opts.opts_.cleansession = 0;
-    else
+    if (opts.opts_.MQTTVersion < 5)
         opts.opts_.cleanstart = 0;
+    else
+        opts.opts_.cleansession = 0;
 
     // TODO: If connTok_ is non-null, there could be a pending connect
     // which might complete after creating/assigning a new one. If that

@@ -55,7 +55,7 @@
 using namespace std;
 using namespace std::chrono;
 
-const std::string DFLT_SERVER_ADDRESS{"mqtt://localhost:1883"};
+const std::string DFLT_SERVER_URI{"mqtt://localhost:1883"};
 
 // The QoS for sending data
 const int QOS = 1;
@@ -86,7 +86,7 @@ uint64_t timestamp()
 int main(int argc, char* argv[])
 {
     // The server URI (address)
-    string serverURI = (argc > 1) ? string(argv[1]) : DFLT_SERVER_ADDRESS;
+    string serverURI = (argc > 1) ? string{argv[1]} : DFLT_SERVER_URI;
 
     // The amount of time to run (in ms). Zero means "run forever".
     uint64_t trun = (argc > 2) ? stoll(argv[2]) : 0LL;
@@ -130,7 +130,8 @@ int main(int argc, char* argv[])
         auto top = mqtt::topic(cli, "data/time", QOS);
         cout << "Publishing data..." << endl;
 
-        while (timestamp() % DELTA_MS != 0);
+        while (timestamp() % DELTA_MS != 0)
+            ;
 
         uint64_t t = timestamp(), tlast = t, tstart = t;
 

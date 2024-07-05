@@ -42,7 +42,7 @@
 
 using namespace std;
 
-const string DFLT_SERVER_ADDRESS{"mqtt://localhost:1883"};
+const string DFLT_SERVER_URI{"mqtt://localhost:1883"};
 const string CLIENT_ID{"paho_cpp_async_publish"};
 const string PERSIST_DIR{"./persist"};
 
@@ -134,11 +134,11 @@ int main(int argc, char* argv[])
     // session or Client ID unless it's using persistence, then the local
     // library requires an ID to identify the persistence files.
 
-    string address = (argc > 1) ? string(argv[1]) : DFLT_SERVER_ADDRESS,
-           clientID = (argc > 2) ? string(argv[2]) : CLIENT_ID;
+    string serverURI = (argc > 1) ? string{argv[1]} : DFLT_SERVER_URI,
+           clientID = (argc > 2) ? string{argv[2]} : CLIENT_ID;
 
-    cout << "Initializing for server '" << address << "'..." << endl;
-    mqtt::async_client client(address, clientID, PERSIST_DIR);
+    cout << "Initializing for server '" << serverURI << "'..." << endl;
+    mqtt::async_client client(serverURI, clientID, PERSIST_DIR);
 
     callback cb;
     client.set_callback(cb);

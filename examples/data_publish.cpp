@@ -65,7 +65,7 @@
 using namespace std;
 using namespace std::chrono;
 
-const std::string DFLT_ADDRESS{"mqtt://localhost:1883"};
+const std::string DFLT_SERVER_URI{"mqtt://localhost:1883"};
 const std::string CLIENT_ID{"paho-cpp-data-publish"};
 
 const string TOPIC{"data/rand"};
@@ -264,13 +264,13 @@ public:
 
 int main(int argc, char* argv[])
 {
-    string address = (argc > 1) ? string(argv[1]) : DFLT_ADDRESS;
+    string serverURI = (argc > 1) ? string{argv[1]} : DFLT_SERVER_URI;
 
 #if defined(_WIN32)
-    mqtt::async_client cli(address, CLIENT_ID, MAX_BUFFERED_MSGS);
+    mqtt::async_client cli(serverURI, CLIENT_ID, MAX_BUFFERED_MSGS);
 #else
     encoded_file_persistence persist("elephant");
-    mqtt::async_client cli(address, CLIENT_ID, MAX_BUFFERED_MSGS, &persist);
+    mqtt::async_client cli(serverURI, CLIENT_ID, MAX_BUFFERED_MSGS, &persist);
 #endif
 
     auto connOpts = mqtt::connect_options_builder()
@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
 
     try {
         // Connect to the MQTT broker
-        cout << "Connecting to server '" << address << "'..." << flush;
+        cout << "Connecting to server '" << serverURI << "'..." << flush;
         cli.connect(connOpts)->wait();
         cout << "OK\n" << endl;
 

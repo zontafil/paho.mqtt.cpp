@@ -40,17 +40,19 @@
 
 using namespace std;
 
-const string SERVER_ADDRESS{"mqtt://localhost:1883"};
+const string DFLT_SERVER_URI{"mqtt://localhost:1883"};
 const string CLIENT_ID{"PahoCppAsyncConsumeV5"};
-const string TOPIC{"hello"};
 
+const string TOPIC{"hello"};
 const int QOS = 1;
 
 /////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char* argv[])
 {
-    mqtt::async_client cli(SERVER_ADDRESS, CLIENT_ID);
+    auto serverURI = (argc > 1) ? string{argv[1]} : DFLT_SERVER_URI;
+
+    mqtt::async_client cli(serverURI, CLIENT_ID);
 
     auto connOpts = mqtt::connect_options_builder::v5()
                         .clean_start(false)
@@ -63,8 +65,8 @@ int main(int argc, char* argv[])
         });
 
         cli.set_disconnected_handler([](const mqtt::properties&, mqtt::ReasonCode reason) {
-            cout << "*** Disconnected. Reason [0x"
-				<< hex << int{reason} << "]: " << reason << " ***" << endl;
+            cout << "*** Disconnected. Reason [0x" << hex << int{reason} << "]: " << reason
+                 << " ***" << endl;
         });
 
         // Start consumer before connecting to make sure to not miss messages
