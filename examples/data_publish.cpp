@@ -43,18 +43,18 @@
 
 #include <algorithm>
 #include <chrono>
+#include <condition_variable>
+#include <csignal>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <mutex>
 #include <random>
 #include <string>
 #include <thread>
-#include <filesystem>
-#include <fstream>
-#include <csignal>
-#include <mutex>
-#include <condition_variable>
 
 #include "mqtt/async_client.h"
 
@@ -80,19 +80,32 @@ const fs::path PERSIST_DIR{"persist"};
 // A key for encoding the persistence data
 const string PERSIST_KEY{"elephant"};
 
-// Condition variable & flag to tell the main loop to exit.
-std::condition_variable cv;
-std::mutex mtx;
-bool quit{false};
+// Class to pace timing and signal and exit without delay.
+class quit_signal
+{
+    condition_variable cv_;
+    mutex mtx_;
+    bool quit_{false};
 
-// Handler for ^C (SIGINT)
-void ctrlc_handler(int) {
+public:
+    template <class Clock, class Duration>
+    bool wait_until(const time_point<Clock, Duration>& abs_time)
     {
-        lock_guard<mutex> lk(mtx);
-        quit = true;
+        unique_lock lk(mtx_);
+        return cv_.wait_until(lk, abs_time, [this] { return quit_; });
     }
-    cv.notify_one();
-}
+
+    void signal()
+    {
+        unique_lock<mutex> lk(mtx_);
+        quit_ = true;
+        lk.unlock();
+        cv_.notify_one();
+    }
+};
+
+// Variable to pace timing and signal exit
+quit_signal quit;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -155,7 +168,8 @@ public:
 
     // Close the persistent store that was previously opened.
     // Remove the persistence directory, if it's empty.
-    void close() override {
+    void close() override
+    {
         fs::remove(dir_);
         fs::remove(dir_.parent_path());
     }
@@ -259,6 +273,11 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////
 
+// Handler for ^C (SIGINT)
+void ctrlc_handler(int) { quit.signal(); }
+
+// --------------------------------------------------------------------------
+
 int main(int argc, char* argv[])
 {
     string serverURI = (argc > 1) ? string{argv[1]} : DFLT_SERVER_URI;
@@ -298,12 +317,8 @@ int main(int argc, char* argv[])
         auto tm = steady_clock::now() + 250ms;
 
         // Pace the sampling by letting the condition variable time out
-        // periodically. When 'cv' is signaled, it's time to quit.
-        unique_lock lk(mtx);
-
-        while (!cv.wait_until(lk, tm, []{ return quit; })) {
-            lk.unlock();
-
+        // periodically. When 'quit' is signaled, it's time to quit.
+        while (!quit.wait_until(tm)) {
             // Get a timestamp and format as a string
             time_t t = system_clock::to_time_t(system_clock::now());
             strftime(tmbuf, sizeof(tmbuf), "%F %T", localtime(&t));
@@ -319,7 +334,6 @@ int main(int argc, char* argv[])
             top.publish(std::move(payload));
 
             tm += PERIOD;
-            lk.lock();
         }
 
         // Disconnect

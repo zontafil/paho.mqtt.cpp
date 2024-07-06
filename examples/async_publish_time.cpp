@@ -44,13 +44,12 @@
 
 #include <atomic>
 #include <chrono>
+#include <csignal>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <string>
 #include <thread>  // For sleep
-#include <atomic>
-#include <csignal>
 
 #include "mqtt/async_client.h"
 
@@ -75,9 +74,7 @@ const int MAX_BUFFERED_MESSAGES = 1200;
 atomic<bool> quit{false};
 
 // Handler for ^C (SIGINT)
-void ctrlc_handler(int) {
-    quit = true;
-}
+void ctrlc_handler(int) { quit = true; }
 
 // --------------------------------------------------------------------------
 // Gets the current time as the number of milliseconds since the epoch:
