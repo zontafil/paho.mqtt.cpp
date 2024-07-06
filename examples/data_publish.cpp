@@ -52,6 +52,9 @@
 #include <thread>
 #include <filesystem>
 #include <fstream>
+#include <csignal>
+#include <mutex>
+#include <condition_variable>
 
 #include "mqtt/async_client.h"
 
@@ -76,6 +79,20 @@ const fs::path PERSIST_DIR{"persist"};
 
 // A key for encoding the persistence data
 const string PERSIST_KEY{"elephant"};
+
+// Condition variable & flag to tell the main loop to exit.
+std::condition_variable cv;
+std::mutex mtx;
+bool quit{false};
+
+// Handler for ^C (SIGINT)
+void ctrlc_handler(int) {
+    {
+        lock_guard<mutex> lk(mtx);
+        quit = true;
+    }
+    cv.notify_one();
+}
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -108,7 +125,7 @@ class encoded_file_persistence : virtual public mqtt::iclient_persistence
     }
 
     // Gets the persistence file name for the supplied key.
-    fs::path path_name(const string& key) const { return dir_ /key; }
+    fs::path path_name(const string& key) const { return dir_ / key; }
 
 public:
     // Create the persistence object with the specified encoding key
@@ -138,7 +155,10 @@ public:
 
     // Close the persistent store that was previously opened.
     // Remove the persistence directory, if it's empty.
-    void close() override { fs::remove(dir_); }
+    void close() override {
+        fs::remove(dir_);
+        fs::remove(dir_.parent_path());
+    }
 
     // Clears persistence, so that it no longer contains any persisted data.
     // Just remove all the files from the persistence directory.
@@ -271,12 +291,18 @@ int main(int argc, char* argv[])
         char tmbuf[32];
         unsigned nsample = 0;
 
-        // The time at which to reads the next sample, starting now
-        auto tm = steady_clock::now();
+        // Install a ^C handler for user to signal when to exit
+        signal(SIGINT, ctrlc_handler);
 
-        while (true) {
-            // Pace the samples to the desired rate
-            this_thread::sleep_until(tm);
+        // The steady time at which to read the next sample
+        auto tm = steady_clock::now() + 250ms;
+
+        // Pace the sampling by letting the condition variable time out
+        // periodically. When 'cv' is signaled, it's time to quit.
+        unique_lock lk(mtx);
+
+        while (!cv.wait_until(lk, tm, []{ return quit; })) {
+            lk.unlock();
 
             // Get a timestamp and format as a string
             time_t t = system_clock::to_time_t(system_clock::now());
@@ -293,6 +319,7 @@ int main(int argc, char* argv[])
             top.publish(std::move(payload));
 
             tm += PERIOD;
+            lk.lock();
         }
 
         // Disconnect
