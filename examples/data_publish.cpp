@@ -282,8 +282,10 @@ int main(int argc, char* argv[])
 {
     string serverURI = (argc > 1) ? string{argv[1]} : DFLT_SERVER_URI;
 
+    // Create a persistence object
     encoded_file_persistence persist{PERSIST_KEY};
 
+    // Create a client to use the persistence.
     mqtt::async_client cli(serverURI, CLIENT_ID, MAX_BUFFERED_MSGS, &persist);
 
     auto connOpts = mqtt::connect_options_builder()

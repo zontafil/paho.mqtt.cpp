@@ -36,6 +36,7 @@
 #include "mqtt/callback.h"
 #include "mqtt/create_options.h"
 #include "mqtt/delivery_token.h"
+#include "mqtt/event.h"
 #include "mqtt/exception.h"
 #include "mqtt/iaction_listener.h"
 #include "mqtt/iasync_client.h"
@@ -110,8 +111,8 @@ class async_client : public virtual iasync_client
 public:
     /** Smart/shared pointer for an object of this class */
     using ptr_t = std::shared_ptr<async_client>;
-    /** Type for a thread-safe queue to consume messages synchronously */
-    using consumer_queue_type = std::unique_ptr<thread_queue<const_message_ptr>>;
+    /** Type for a thread-safe queue to consume events synchronously */
+    using consumer_queue_type = std::unique_ptr<thread_queue<event_type>>;
 
     /** Handler type for registering an individual message callback */
     using message_handler = std::function<void(const_message_ptr)>;
@@ -761,14 +762,14 @@ public:
      * This blocks until a new message arrives.
      * @return The message and topic.
      */
-    const_message_ptr consume_message() override { return que_->get(); }
+    const_message_ptr consume_message() override;
     /**
      * Try to read the next message from the queue without blocking.
      * @param msg Pointer to the value to receive the message
      * @return @em true is a message was read, @em false if no message was
      *  	   available.
      */
-    bool try_consume_message(const_message_ptr* msg) override { return que_->try_get(msg); }
+    bool try_consume_message(const_message_ptr* msg);
     /**
      * Waits a limited time for a message to arrive.
      * @param msg Pointer to the value to receive the message
@@ -780,7 +781,15 @@ public:
     bool try_consume_message_for(
         const_message_ptr* msg, const std::chrono::duration<Rep, Period>& relTime
     ) {
-        return que_->try_get_for(msg, relTime);
+        event_type evt;
+        if (!que_->try_get_for(&evt, relTime))
+            return false;
+
+        if (const auto* pval = std::get_if<message_arrived_event>(&evt))
+            *msg = std::move(pval->msg);
+        else
+            *msg = const_message_ptr{};
+        return true;
     }
     /**
      * Waits a limited time for a message to arrive.
@@ -793,7 +802,7 @@ public:
         const std::chrono::duration<Rep, Period>& relTime
     ) {
         const_message_ptr msg;
-        que_->try_get_for(&msg, relTime);
+        this->try_consume_message_for(&msg, relTime);
         return msg;
     }
     /**
@@ -807,7 +816,15 @@ public:
     bool try_consume_message_until(
         const_message_ptr* msg, const std::chrono::time_point<Clock, Duration>& absTime
     ) {
-        return que_->try_get_until(msg, absTime);
+        event_type evt;
+        if (!que_->try_get_until(&evt, absTime))
+            return false;
+
+        if (const auto* pval = std::get_if<message_arrived_event>(&evt))
+            *msg = std::move(pval->msg);
+        else
+            *msg = const_message_ptr{};
+        return true;
     }
     /**
      * Waits until a specific time for a message to appear.
@@ -819,8 +836,72 @@ public:
         const std::chrono::time_point<Clock, Duration>& absTime
     ) {
         const_message_ptr msg;
-        que_->try_get_until(&msg, absTime);
+        this->try_consume_message_until(&msg, absTime);
         return msg;
+    }
+
+    /**
+     * Read the next message from the queue.
+     * This blocks until a new message arrives.
+     * @return The message and topic.
+     */
+    event_type consume_event() override { return que_->get(); }
+    /**
+     * Try to read the next message from the queue without blocking.
+     * @param msg Pointer to the value to receive the message
+     * @return @em true is a message was read, @em false if no message was
+     *  	   available.
+     */
+    bool try_consume_event(event_type* evt) override { return que_->try_get(evt); }
+    /**
+     * Waits a limited time for a message to arrive.
+     * @param msg Pointer to the value to receive the message
+     * @param relTime The maximum amount of time to wait for a message.
+     * @return @em true if a message was read, @em false if a timeout
+     *  	   occurred.
+     */
+    template <typename Rep, class Period>
+    bool try_consume_event_for(
+        event_type* evt, const std::chrono::duration<Rep, Period>& relTime
+    ) {
+        return que_->try_get_for(evt, relTime);
+    }
+    /**
+     * Waits a limited time for a message to arrive.
+     * @param relTime The maximum amount of time to wait for a message.
+     * @return A shared pointer to the message that was received. It will be
+     *  	   empty on timeout.
+     */
+    template <typename Rep, class Period>
+    event_type try_consume_event_for(const std::chrono::duration<Rep, Period>& relTime) {
+        event_type evt;
+        que_->try_get_for(&evt, relTime);
+        return evt;
+    }
+    /**
+     * Waits until a specific time for a message to appear.
+     * @param msg Pointer to the value to receive the message
+     * @param absTime The time point to wait until, before timing out.
+     * @return @em true if a message was read, @em false if a timeout
+     *  	   occurred.
+     */
+    template <class Clock, class Duration>
+    bool try_consume_event_until(
+        event_type* evt, const std::chrono::time_point<Clock, Duration>& absTime
+    ) {
+        return que_->try_get_until(evt, absTime);
+    }
+    /**
+     * Waits until a specific time for a message to appear.
+     * @param absTime The time point to wait until, before timing out.
+     * @return The message, if read, an empty pointer if not.
+     */
+    template <class Clock, class Duration>
+    event_type try_consume_event_until(const std::chrono::time_point<Clock, Duration>& absTime
+    ) {
+        event_type evt;
+        que_->try_get_until(&evt, absTime);
+        return evt;
     }
 };
 

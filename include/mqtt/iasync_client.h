@@ -30,6 +30,7 @@
 #include "mqtt/connect_options.h"
 #include "mqtt/delivery_token.h"
 #include "mqtt/disconnect_options.h"
+#include "mqtt/event.h"
 #include "mqtt/exception.h"
 #include "mqtt/iaction_listener.h"
 #include "mqtt/iclient_persistence.h"
@@ -461,6 +462,19 @@ public:
      *  	   available.
      */
     virtual bool try_consume_message(const_message_ptr* msg) = 0;
+    /**
+     * Read the next event from the queue.
+     * This blocks until a new message arrives.
+     * @return The message and topic.
+     */
+    virtual event_type consume_event() = 0;
+    /**
+     * Try to read the next message from the queue without blocking.
+     * @param msg Pointer to the value to receive the message
+     * @return @em true is a message was read, @em false if no message was
+     *  	   available.
+     */
+    virtual bool try_consume_event(event_type* evt) = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////////
