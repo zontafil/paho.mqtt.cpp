@@ -54,15 +54,11 @@ struct disconnected_event
     ReasonCode reasonCode;
 };
 
-/** Event for when a message arrives */
-struct message_arrived_event
-{
-    const_message_ptr msg;
-};
+/* Event for when a message arrives is just a message pointer */
 
 /** The variant type for any possible event. */
 using event_type = std::variant<
-    message_arrived_event, connected_event, connection_lost_event, disconnected_event>;
+    const_message_ptr, connected_event, connection_lost_event, disconnected_event>;
 
 /////////////////////////////////////////////////////////////////////////////
 }  // namespace mqtt

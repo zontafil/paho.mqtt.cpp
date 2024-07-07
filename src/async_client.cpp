@@ -207,7 +207,7 @@ int async_client::on_message_arrived(
             cb->message_arrived(m);
 
         if (que)
-            que->put(message_arrived_event{m});
+            que->put(m);
     }
 
     MQTTAsync_freeMessage(&msg);
@@ -877,8 +877,8 @@ void async_client::stop_consuming()
 const_message_ptr async_client::consume_message()
 {
     auto evt = que_->get();
-    if (const auto* pval = std::get_if<message_arrived_event>(&evt))
-        return pval->msg;
+    if (const auto* pval = std::get_if<const_message_ptr>(&evt))
+        return *pval;
     return const_message_ptr{};
 }
 
@@ -888,8 +888,8 @@ bool async_client::try_consume_message(const_message_ptr* msg)
     if (!que_->try_get(&evt))
         return false;
 
-    if (const auto* pval = std::get_if<message_arrived_event>(&evt))
-        *msg = std::move(pval->msg);
+    if (const auto* pval = std::get_if<const_message_ptr>(&evt))
+        *msg = std::move(*pval);
     else
         *msg = const_message_ptr{};
     return true;

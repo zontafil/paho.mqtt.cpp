@@ -95,8 +95,8 @@ int main(int argc, char* argv[])
         while (true) {
             auto evt = cli.consume_event();
 
-            if (const auto* p = std::get_if<mqtt::message_arrived_event>(&evt)) {
-                auto& msg = p->msg;
+            if (const auto* p = std::get_if<mqtt::const_message_ptr>(&evt)) {
+                auto& msg = *p;
                 if (msg)
                     cout << msg->get_topic() << ": " << msg->to_string() << endl;
             }

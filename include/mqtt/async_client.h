@@ -785,8 +785,8 @@ public:
         if (!que_->try_get_for(&evt, relTime))
             return false;
 
-        if (const auto* pval = std::get_if<message_arrived_event>(&evt))
-            *msg = std::move(pval->msg);
+        if (const auto* pval = std::get_if<const_message_ptr>(&evt))
+            *msg = std::move(*pval);
         else
             *msg = const_message_ptr{};
         return true;
@@ -820,8 +820,8 @@ public:
         if (!que_->try_get_until(&evt, absTime))
             return false;
 
-        if (const auto* pval = std::get_if<message_arrived_event>(&evt))
-            *msg = std::move(pval->msg);
+        if (const auto* pval = std::get_if<const_message_ptr>(&evt))
+            *msg = std::move(*pval);
         else
             *msg = const_message_ptr{};
         return true;
