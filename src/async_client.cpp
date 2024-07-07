@@ -857,8 +857,9 @@ void async_client::start_consuming()
         nullptr
     );
 
-    if (rc != MQTTASYNC_SUCCESS)
-        throw exception(rc);
+    check_ret(rc);
+    check_ret(::MQTTAsync_setConnected(cli_, this, &async_client::on_connected));
+    check_ret(::MQTTAsync_setDisconnected(cli_, this, &async_client::on_disconnected));
 }
 
 void async_client::stop_consuming()

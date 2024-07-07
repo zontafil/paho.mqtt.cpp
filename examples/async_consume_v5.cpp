@@ -60,15 +60,6 @@ int main(int argc, char* argv[])
                         .finalize();
 
     try {
-        cli.set_connection_lost_handler([](const std::string&) {
-            cout << "*** Connection Lost ***" << endl;
-        });
-
-        cli.set_disconnected_handler([](const mqtt::properties&, mqtt::ReasonCode reason) {
-            cout << "*** Disconnected. Reason [0x" << hex << int{reason} << "]: " << reason
-                 << " ***" << endl;
-        });
-
         // Start consumer before connecting to make sure to not miss messages
 
         cli.start_consuming();
@@ -105,10 +96,26 @@ int main(int argc, char* argv[])
         cout << "\nWaiting for messages on topic: '" << TOPIC << "'" << endl;
 
         while (true) {
-            auto msg = cli.consume_message();
-            if (!msg)
+
+            auto evt = cli.consume_event();
+
+            if (const auto* p = std::get_if<mqtt::message_arrived_event>(&evt)) {
+                auto& msg = p->msg;
+                if (msg)
+                    cout << msg->get_topic() << ": " << msg->to_string() << endl;
+            }
+            else if (std::holds_alternative<mqtt::connected_event>(evt)) {
+                cout << "\n*** Connected ***" << endl;
+            }
+            else if (std::holds_alternative<mqtt::connection_lost_event>(evt)) {
+                cout << "*** Connection Lost ***" << endl;
                 break;
-            cout << msg->get_topic() << ": " << msg->to_string() << endl;
+            }
+            else if (const auto* p = std::get_if<mqtt::disconnected_event>(&evt)) {
+                cout << "*** Disconnected. Reason [0x" << hex << int{p->reasonCode}
+                    << "]: " << p->reasonCode << " ***" << endl;
+                break;
+            }
         }
 
         // If we're here, the client was almost certainly disconnected.
@@ -119,9 +126,6 @@ int main(int argc, char* argv[])
             cli.stop_consuming();
             cli.disconnect()->wait();
             cout << "OK" << endl;
-        }
-        else {
-            cout << "\nClient was disconnected" << endl;
         }
     }
     catch (const mqtt::exception& exc) {

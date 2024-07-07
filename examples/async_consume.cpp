@@ -62,12 +62,6 @@ int main(int argc, char* argv[])
                         .automatic_reconnect()
                         .finalize();
 
-    // The client will handle automatic reconnects, but we add this
-    // callbacks to let the user know when we're reconnected.
-    cli.set_connected_handler([](const std::string&) {
-        cout << "\n*** Connected ***" << endl;
-    });
-
     try {
         // Start consumer before connecting to make sure to not miss any messages
 
@@ -96,13 +90,22 @@ int main(int argc, char* argv[])
 
         cout << "\nWaiting for messages on topic: '" << TOPIC << "'" << endl;
 
+        // The client handles automatic reconnects, but we monitor
+        // the events here to report them to the user.
         while (true) {
-            auto msg = cli.consume_message();
+            auto evt = cli.consume_event();
 
-            if (msg)
-                cout << msg->get_topic() << ": " << msg->to_string() << endl;
-            else
+            if (const auto* p = std::get_if<mqtt::message_arrived_event>(&evt)) {
+                auto& msg = p->msg;
+                if (msg)
+                    cout << msg->get_topic() << ": " << msg->to_string() << endl;
+            }
+            else if (std::holds_alternative<mqtt::connected_event>(evt))
+                cout << "\n*** Connected ***" << endl;
+            else if (std::holds_alternative<mqtt::connection_lost_event>(evt))
                 cout << "*** Connection Lost ***" << endl;
+            else
+                cout << "???" << endl;
         }
     }
     catch (const mqtt::exception& exc) {
