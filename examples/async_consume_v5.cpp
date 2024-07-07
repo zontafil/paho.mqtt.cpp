@@ -96,7 +96,6 @@ int main(int argc, char* argv[])
         cout << "\nWaiting for messages on topic: '" << TOPIC << "'" << endl;
 
         while (true) {
-
             auto evt = cli.consume_event();
 
             if (const auto* p = std::get_if<mqtt::const_message_ptr>(&evt)) {
@@ -113,7 +112,7 @@ int main(int argc, char* argv[])
             }
             else if (const auto* p = std::get_if<mqtt::disconnected_event>(&evt)) {
                 cout << "*** Disconnected. Reason [0x" << hex << int{p->reasonCode}
-                    << "]: " << p->reasonCode << " ***" << endl;
+                     << "]: " << p->reasonCode << " ***" << endl;
                 break;
             }
         }
