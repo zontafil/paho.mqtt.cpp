@@ -769,7 +769,7 @@ public:
      * @return @em true is a message was read, @em false if no message was
      *  	   available.
      */
-    bool try_consume_message(const_message_ptr* msg);
+    bool try_consume_message(const_message_ptr* msg) override;
     /**
      * Waits a limited time for a message to arrive.
      * @param msg Pointer to the value to receive the message
@@ -848,16 +848,16 @@ public:
     event_type consume_event() override { return que_->get(); }
     /**
      * Try to read the next message from the queue without blocking.
-     * @param msg Pointer to the value to receive the message
-     * @return @em true is a message was read, @em false if no message was
-     *  	   available.
+     * @param evt Pointer to the value to receive the event
+	 * @return @em true if an event was read, @em false if no
+	 *  	   event was available.
      */
     bool try_consume_event(event_type* evt) override { return que_->try_get(evt); }
     /**
      * Waits a limited time for a message to arrive.
-     * @param msg Pointer to the value to receive the message
-     * @param relTime The maximum amount of time to wait for a message.
-     * @return @em true if a message was read, @em false if a timeout
+     * @param evt Pointer to the value to receive the event.
+     * @param relTime The maximum amount of time to wait for an event.
+     * @return @em true if an event was read, @em false if a timeout
      *  	   occurred.
      */
     template <typename Rep, class Period>
@@ -867,10 +867,10 @@ public:
         return que_->try_get_for(evt, relTime);
     }
     /**
-     * Waits a limited time for a message to arrive.
-     * @param relTime The maximum amount of time to wait for a message.
-     * @return A shared pointer to the message that was received. It will be
-     *  	   empty on timeout.
+     * Waits a limited time for an event to arrive.
+	 * @param relTime The maximum amount of time to wait for an event.
+	 * @return The event that was received. It will contain empty message on
+	 *  	   timeout.
      */
     template <typename Rep, class Period>
     event_type try_consume_event_for(const std::chrono::duration<Rep, Period>& relTime) {
@@ -879,11 +879,11 @@ public:
         return evt;
     }
     /**
-     * Waits until a specific time for a message to appear.
-     * @param msg Pointer to the value to receive the message
+     * Waits until a specific time for an event to appear.
+     * @param evt Pointer to the value to receive the event.
      * @param absTime The time point to wait until, before timing out.
-     * @return @em true if a message was read, @em false if a timeout
-     *  	   occurred.
+	 * @return @em true if an event was recceived, @em false if a timeout
+	 *  	   occurred.
      */
     template <class Clock, class Duration>
     bool try_consume_event_until(
@@ -892,9 +892,10 @@ public:
         return que_->try_get_until(evt, absTime);
     }
     /**
-     * Waits until a specific time for a message to appear.
-     * @param absTime The time point to wait until, before timing out.
-     * @return The message, if read, an empty pointer if not.
+     * Waits until a specific time for an event to appear.
+	 * @param absTime The time point to wait until, before timing out.
+	 * @return The event that was received. It will contain empty message on
+	 *  	   timeout.
      */
     template <class Clock, class Duration>
     event_type try_consume_event_until(const std::chrono::time_point<Clock, Duration>& absTime

@@ -240,7 +240,7 @@ public:
 
     bool try_consume_message(const_message_ptr*) override { return false; }
 
-    event_type consume_event() { return message_arrived_event{const_message_ptr{}}; }
+    event_type consume_event() override { return message_arrived_event{const_message_ptr{}}; }
     bool try_consume_event(event_type* evt) override { return false; }
 };
 

@@ -470,9 +470,9 @@ public:
     virtual event_type consume_event() = 0;
     /**
      * Try to read the next message from the queue without blocking.
-     * @param msg Pointer to the value to receive the message
-     * @return @em true is a message was read, @em false if no message was
-     *  	   available.
+     * @param evt Pointer to the value to receive the event
+	 * @return @em true is an event was received, @em false if no event was
+	 *  	   available.
      */
     virtual bool try_consume_event(event_type* evt) = 0;
 };
