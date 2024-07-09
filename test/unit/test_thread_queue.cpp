@@ -46,6 +46,34 @@ TEST_CASE("que put/get", "[thread_queue]")
     REQUIRE(que.get() == 3);
 }
 
+TEST_CASE("que tryget", "[thread_queue]")
+{
+    thread_queue<int> que;
+	int n;
+
+	// try_get's should fail on empty queue
+    REQUIRE(!que.try_get(&n));
+    REQUIRE(!que.try_get_for(&n, 5ms));
+
+	auto timeout = steady_clock::now() + 15ms;
+	REQUIRE(!que.try_get_until(&n, timeout));
+
+    que.put(1);
+    que.put(2);
+	REQUIRE(que.try_get(&n));
+    REQUIRE(n == 1);
+
+    que.put(3);
+    REQUIRE(que.try_get(&n));
+    REQUIRE(n == 2);
+    REQUIRE(que.try_get(&n));
+    REQUIRE(n == 3);
+
+	// Empty now. Try should fail and leave 'n' unchanged
+	REQUIRE(!que.try_get(&n));
+    REQUIRE(n == 3);
+}
+
 TEST_CASE("que mt put/get", "[thread_queue]")
 {
     thread_queue<string> que;
@@ -54,9 +82,13 @@ TEST_CASE("que mt put/get", "[thread_queue]")
 
     auto producer = [&que, &N]() {
         string s;
-        for (size_t i = 0; i < 512; ++i) s.push_back('a' + i % 26);
+        for (size_t i = 0; i < 512; ++i) {
+			s.push_back('a' + i % 26);
+		}
 
-        for (size_t i = 0; i < N; ++i) que.put(s);
+        for (size_t i = 0; i < N; ++i) {
+			que.put(s);
+		}
     };
 
     auto consumer = [&que, &N]() {
@@ -71,11 +103,17 @@ TEST_CASE("que mt put/get", "[thread_queue]")
     std::vector<std::thread> producers;
     std::vector<std::future<bool>> consumers;
 
-    for (size_t i = 0; i < N_THR; ++i) producers.push_back(std::thread(producer));
+    for (size_t i = 0; i < N_THR; ++i) {
+		producers.push_back(std::thread(producer));
+	}
 
-    for (size_t i = 0; i < N_THR; ++i) consumers.push_back(std::async(consumer));
+    for (size_t i = 0; i < N_THR; ++i) {
+		consumers.push_back(std::async(consumer));
+	}
 
-    for (size_t i = 0; i < N_THR; ++i) producers[i].join();
+    for (size_t i = 0; i < N_THR; ++i) {
+		producers[i].join();
+	}
 
     for (size_t i = 0; i < N_THR; ++i) {
         REQUIRE(consumers[i].get());

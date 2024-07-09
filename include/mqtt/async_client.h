@@ -782,13 +782,21 @@ public:
         const_message_ptr* msg, const std::chrono::duration<Rep, Period>& relTime
     ) {
         event_type evt;
-        if (!que_->try_get_for(&evt, relTime))
-            return false;
 
-        if (const auto* pval = std::get_if<const_message_ptr>(&evt))
-            *msg = std::move(*pval);
-        else
-            *msg = const_message_ptr{};
+		while (true) {
+			if (!que_->try_get_for(&evt, relTime))
+				return false;
+
+			if (const auto* pval = std::get_if<const_message_ptr>(&evt)) {
+				*msg = std::move(*pval);
+				break;
+			}
+
+			if (!std::holds_alternative<connected_event>(evt)) {
+				*msg = const_message_ptr{};
+				break;
+			}
+		}
         return true;
     }
     /**
@@ -817,13 +825,22 @@ public:
         const_message_ptr* msg, const std::chrono::time_point<Clock, Duration>& absTime
     ) {
         event_type evt;
-        if (!que_->try_get_until(&evt, absTime))
-            return false;
 
-        if (const auto* pval = std::get_if<const_message_ptr>(&evt))
-            *msg = std::move(*pval);
-        else
-            *msg = const_message_ptr{};
+		while (true) {
+			if (!que_->try_get_until(&evt, absTime))
+				return false;
+
+			if (const auto* pval = std::get_if<const_message_ptr>(&evt)) {
+				*msg = std::move(*pval);
+				break;
+			}
+
+			if (!std::holds_alternative<connected_event>(evt)) {
+				*msg = const_message_ptr{};
+				break;
+			}
+		}
+
         return true;
     }
     /**
