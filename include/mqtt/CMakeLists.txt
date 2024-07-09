@@ -12,7 +12,7 @@
 # 
 #  Contributors:
 #     Guilherme Maciel Ferreira - initial version
-#     Frank Pagliughi
+#     Frank Pagliughi - updates throughout
 #*******************************************************************************/
 
 install(
@@ -26,6 +26,7 @@ install(
         create_options.h
         delivery_token.h
         disconnect_options.h
+        event.h
         exception.h
         export.h
         iaction_listener.h
