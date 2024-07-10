@@ -34,19 +34,19 @@ To keep up with the latest announcements for this project, or to ask questions:
 **Email:** [Eclipse Paho Mailing List](https://accounts.eclipse.org/mailing-list/paho-dev)
 
 
-### What's New in v1.4.0
+### What's New in v1.4.x
 
-The v1.4.0 release is primarily concerned with reorganizing the sources and fixing a number of CMake build issues, particularly to get the Paho C submodule build working with the existing C library, fix transient dependencies, and get the Windows DLL (maybe, finally) working properly.
+The v1.4 releases were primarily concerned with reorganizing the sources and fixing a number of CMake build issues, particularly to get the Paho C submodule build working with the existing C library. They also fixed some transient build dependencies and may have finally gotten the Windows DLL working properly.
 
-- Ability to build the Paho C library automatically (now working)
+- Ability to build the Paho C library automatically (now working!)
     - Reworked the CMake build so that 'PAHO_WITH_MQTT_C' option properly compiles the existing Paho C v1.3.13
     - Moved 'src/externals/' to top-level
 - Reorganized the source tree:
     - Moved header files to top-level 'include/' directory.
     - Moved 'src/sampless/' to top-level and renamed 'examples/'
-    - Removed the ob
 - Fixed and optimized 'topic_matcher' trie collection
 - Added some missing Eclipse/Paho legal documents to the repo.
+- Several bug fixes.
 
 For a full list of updates see the [CHANGELOG](https://github.com/eclipse/paho.mqtt.cpp/blob/master/CHANGELOG.md)
 
@@ -93,7 +93,7 @@ This requires the CMake option `PAHO_WITH_MQTT_C` set.
 ```
 $ git clone https://github.com/eclipse/paho.mqtt.cpp
 $ cd paho.mqtt.cpp
-$ git co v1.4.0
+$ git co v1.4.1
 
 $ git submodule init
 $ git submodule update
@@ -169,7 +169,7 @@ If the Paho C library is not already installed, the recommended version can be b
 ```
 $ git clone https://github.com/eclipse/paho.mqtt.cpp
 $ cd paho.mqtt.cpp
-$ git co v1.4.0
+$ git co v1.4.1
 $ git submodule init
 $ git submodule update
 
