@@ -74,6 +74,21 @@ TEST_CASE("thread_queue tryget", "[thread_queue]")
     REQUIRE(n == 3);
 }
 
+TEST_CASE("thread_queue tryput", "[thread_queue]")
+{
+    thread_queue<int> que{2};
+
+    REQUIRE(que.try_put(1));
+    REQUIRE(que.try_put(2));
+
+    // Queue full. Put should fail
+    REQUIRE(!que.try_put(3));
+    REQUIRE(!que.try_put_for(3, 5ms));
+
+    auto timeout = steady_clock::now() + 15ms;
+    REQUIRE(!que.try_put_until(3, timeout));
+}
+
 TEST_CASE("thread_queue mt put/get", "[thread_queue]")
 {
     thread_queue<string> que;
@@ -134,21 +149,39 @@ TEST_CASE("thread_queue close", "[thread_queue]")
     REQUIRE(que.size() == 2);
 
     REQUIRE_THROWS_AS(que.put(3), queue_closed);
-    REQUIRE_THROWS_AS(que.try_put(3), queue_closed);
-    REQUIRE_THROWS_AS(que.try_put_for(3, 10ms), queue_closed);
-    REQUIRE_THROWS_AS(que.try_put_until(3, steady_clock::now() + 10ms), queue_closed);
+    REQUIRE(!que.try_put(3));
+    REQUIRE(!que.try_put_for(3, 10ms));
+    REQUIRE(!que.try_put_until(3, steady_clock::now() + 10ms));
 
     // But can get any items already in there.
     REQUIRE(que.get() == 1);
     REQUIRE(que.get() == 2);
 
-    // When done (closed and empty), should throw on a get()
+    // When done (closed and empty), should throw on a get(),
+    // or fail on a try_get
     REQUIRE(que.empty());
     REQUIRE(que.done());
 
     int n;
     REQUIRE_THROWS_AS(que.get(), queue_closed);
-    REQUIRE_THROWS_AS(que.try_get(&n), queue_closed);
-    REQUIRE_THROWS_AS(que.try_get_for(&n, 10ms), queue_closed);
-    REQUIRE_THROWS_AS(que.try_get_until(&n, steady_clock::now() + 10ms), queue_closed);
+    REQUIRE(!que.try_get(&n));
+    REQUIRE(!que.try_get_for(&n, 10ms));
+    REQUIRE(!que.try_get_until(&n, steady_clock::now() + 10ms));
+}
+
+TEST_CASE("thread_queue close_signals", "[thread_queue]")
+{
+    thread_queue<int> que;
+    REQUIRE(!que.closed());
+
+    auto thr = std::thread([&que] {
+        std::this_thread::sleep_for(10ms);
+        que.close();
+    });
+
+    // Should initially block, but then throw when the queue
+    // is closed by the other thread.
+    REQUIRE_THROWS_AS(que.get(), queue_closed);
+
+    thr.join();
 }
