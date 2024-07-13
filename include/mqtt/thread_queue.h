@@ -175,9 +175,8 @@ public:
      * it is empty.
      */
     void close() {
-        unique_guard g{lock_};
+        guard g{lock_};
         closed_ = true;
-        g.unlock();
         notFullCond_.notify_all();
         notEmptyCond_.notify_all();
     }
@@ -207,10 +206,9 @@ public:
      * This discards all items in the queue.
      */
     void clear() {
-        unique_guard g{lock_};
+        guard g{lock_};
         while (!que_.empty())
             que_.pop();
-        g.unlock();
         notFullCond_.notify_all();
     }
     /**
@@ -222,10 +220,9 @@ public:
     void put(value_type val) {
         unique_guard g{lock_};
         notFullCond_.wait(g, [this] { return que_.size() < cap_ || closed_; });
-
         if (closed_) throw queue_closed{};
+
         que_.emplace(std::move(val));
-        g.unlock();
         notEmptyCond_.notify_one();
     }
     /**
@@ -235,12 +232,11 @@ public:
      *  	   item was not added because the queue is currently full.
      */
     bool try_put(value_type val) {
-        unique_guard g{lock_};
+        guard g{lock_};
         if (que_.size() >= cap_ || closed_)
             return false;
 
         que_.emplace(std::move(val));
-        g.unlock();
         notEmptyCond_.notify_one();
         return true;
     }
@@ -264,7 +260,6 @@ public:
             return false;
 
         que_.emplace(std::move(val));
-        g.unlock();
         notEmptyCond_.notify_one();
         return true;
     }
@@ -292,7 +287,6 @@ public:
             return false;
 
         que_.emplace(std::move(val));
-        g.unlock();
         notEmptyCond_.notify_one();
         return true;
     }
@@ -313,7 +307,6 @@ public:
 
         *val = std::move(que_.front());
         que_.pop();
-        g.unlock();
         notFullCond_.notify_one();
         return true;
     }
@@ -331,7 +324,6 @@ public:
 
         value_type val = std::move(que_.front());
         que_.pop();
-        g.unlock();
         notFullCond_.notify_one();
         return val;
     }
@@ -347,13 +339,12 @@ public:
         if (!val)
             return false;
 
-        unique_guard g{lock_};
+        guard g{lock_};
         if (que_.empty())
             return false;
 
         *val = std::move(que_.front());
         que_.pop();
-        g.unlock();
         notFullCond_.notify_one();
         return true;
     }
@@ -383,7 +374,6 @@ public:
 
         *val = std::move(que_.front());
         que_.pop();
-        g.unlock();
         notFullCond_.notify_one();
         return true;
     }
@@ -408,13 +398,11 @@ public:
         notEmptyCond_.wait_until(
 			g, absTime, [this] { return !que_.empty() || closed_; }
 	    );
-
         if (que_.empty())
             return false;
 
         *val = std::move(que_.front());
         que_.pop();
-        g.unlock();
         notFullCond_.notify_one();
         return true;
     }
