@@ -43,7 +43,8 @@ using namespace std;
 const string DFLT_SERVER_URI{"mqtt://localhost:1883"};
 const string CLIENT_ID{"PahoCppAsyncConsumeV5"};
 
-const string TOPIC{"hello"};
+// const string TOPIC{"hello"};
+const string TOPIC{"#"};
 const int QOS = 1;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -92,7 +93,7 @@ int main(int argc, char* argv[])
         // We'll signal the consumer to exit from another thread.
         // (just to show that we can)
         thread([cli] {
-            this_thread::sleep_for(10s);
+            this_thread::sleep_for(60s);
             cout << "\nClosing the consumer." << endl;
             cli->stop_consuming();
         }).detach();
@@ -111,8 +112,19 @@ int main(int argc, char* argv[])
 
                 if (const auto* p = evt.get_message_if()) {
                     auto& msg = *p;
-                    if (msg)
-                        cout << msg->get_topic() << ": " << msg->to_string() << endl;
+                    if (!msg)
+                        continue;
+
+                    cout << msg->get_topic() << ": " << msg->to_string();
+
+                    const auto& props = msg->get_properties();
+                    size_t n = props.size();
+                    if (n != 0) {
+                        cout << "\n  [";
+                        for (size_t i = 0; i < n - 1; ++i) cout << props[i] << ", ";
+                        cout << props[n - 1] << "]";
+                    }
+                    cout << endl;
                 }
                 else if (evt.is_connected()) {
                     cout << "\n*** Connected ***" << endl;

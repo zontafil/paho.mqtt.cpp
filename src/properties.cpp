@@ -201,7 +201,7 @@ std::ostream& operator<<(std::ostream& os, const property& prop)
 
     switch (::MQTTProperty_getType(MQTTPropertyCodes(prop.type()))) {
         case MQTTPROPERTY_TYPE_BYTE:
-            os << get<uint8_t>(prop);
+            os << unsigned(get<uint8_t>(prop));
             break;
 
         case MQTTPROPERTY_TYPE_TWO_BYTE_INTEGER:
