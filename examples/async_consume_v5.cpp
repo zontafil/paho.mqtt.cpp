@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 {
     auto serverURI = (argc > 1) ? string{argv[1]} : DFLT_SERVER_URI;
 
-    mqtt::async_client cli(serverURI, CLIENT_ID);
+    auto cli = std::make_shared<mqtt::async_client>(serverURI, CLIENT_ID);
 
     auto connOpts = mqtt::connect_options_builder::v5()
                         .clean_start(false)
@@ -62,12 +62,12 @@ int main(int argc, char* argv[])
     try {
         // Start consumer before connecting to make sure to not miss messages
 
-        cli.start_consuming();
+        cli->start_consuming();
 
         // Connect to the server
 
         cout << "Connecting to the MQTT server..." << flush;
-        auto tok = cli.connect(connOpts);
+        auto tok = cli->connect(connOpts);
 
         // Getting the connect response will block waiting for the
         // connection to complete.
@@ -84,46 +84,59 @@ int main(int argc, char* argv[])
         // subscriptions.
         if (!rsp.is_session_present()) {
             cout << "\n  Session not present on broker. Subscribing..." << flush;
-            cli.subscribe(TOPIC, QOS)->wait();
+            cli->subscribe(TOPIC, QOS)->wait();
         }
 
         cout << "\n  OK" << endl;
 
+        // We'll signal the consumer to exit from another thread.
+        // (just to show that we can)
+        thread([cli] {
+            this_thread::sleep_for(10s);
+            cout << "\nClosing the consumer." << endl;
+            cli->stop_consuming();
+        }).detach();
+
         // Consume messages
-        // This just exits if the client is disconnected.
-        // (See some other examples for auto or manual reconnect)
+        //
+        // This just exits if the consumer is closed or the client is
+        // disconnected. (See some other examples for auto or manual
+        // reconnect)
 
         cout << "\nWaiting for messages on topic: '" << TOPIC << "'" << endl;
 
-        while (true) {
-            auto evt = cli.consume_event();
+        try {
+            while (true) {
+                auto evt = cli->consume_event();
 
-            if (const auto* p = std::get_if<mqtt::const_message_ptr>(&evt)) {
-                auto& msg = *p;
-                if (msg)
-                    cout << msg->get_topic() << ": " << msg->to_string() << endl;
+                if (const auto* p = evt.get_message_if()) {
+                    auto& msg = *p;
+                    if (msg)
+                        cout << msg->get_topic() << ": " << msg->to_string() << endl;
+                }
+                else if (evt.is_connected()) {
+                    cout << "\n*** Connected ***" << endl;
+                }
+                else if (evt.is_connection_lost()) {
+                    cout << "*** Connection Lost ***" << endl;
+                    break;
+                }
+                else if (const auto* p = evt.get_disconnected_if()) {
+                    cout << "*** Disconnected. Reason [0x" << hex << int{p->reasonCode}
+                         << "]: " << p->reasonCode << " ***" << endl;
+                    break;
+                }
             }
-            else if (std::holds_alternative<mqtt::connected_event>(evt)) {
-                cout << "\n*** Connected ***" << endl;
-            }
-            else if (std::holds_alternative<mqtt::connection_lost_event>(evt)) {
-                cout << "*** Connection Lost ***" << endl;
-                break;
-            }
-            else if (const auto* p = std::get_if<mqtt::disconnected_event>(&evt)) {
-                cout << "*** Disconnected. Reason [0x" << hex << int{p->reasonCode}
-                     << "]: " << p->reasonCode << " ***" << endl;
-                break;
-            }
+        }
+        catch (mqtt::queue_closed&) {
         }
 
         // If we're here, the client was almost certainly disconnected.
         // But we check, just to make sure.
 
-        if (cli.is_connected()) {
+        if (cli->is_connected()) {
             cout << "\nShutting down and disconnecting from the MQTT server..." << flush;
-            cli.stop_consuming();
-            cli.disconnect()->wait();
+            cli->disconnect()->wait();
             cout << "OK" << endl;
         }
     }

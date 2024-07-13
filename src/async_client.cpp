@@ -850,7 +850,7 @@ void async_client::start_consuming()
     // TODO: Should we replace user callback?
     // userCallback_ = nullptr;
 
-    que_.reset(new thread_queue<event_type>);
+    que_.reset(new thread_queue<event>);
 
     int rc = MQTTAsync_setCallbacks(
         cli_, this, &async_client::on_connection_lost, &async_client::on_message_arrived,
@@ -866,43 +866,51 @@ void async_client::stop_consuming()
 {
     try {
         disable_callbacks();
-        que_.reset();
+        if (que_)
+            que_->close();
     }
     catch (...) {
-        que_.reset();
+        if (que_)
+            que_->close();
         throw;
     }
 }
 
 const_message_ptr async_client::consume_message()
 {
+    if (!que_)
+        throw mqtt::exception(-1, "Consumer not started");
+
     // For backward compatibility we ignore the 'connected' events,
     // whereas disconnected/lost return an empty pointer.
     while (true) {
         auto evt = que_->get();
 
-        if (const auto* pval = std::get_if<const_message_ptr>(&evt))
+        if (const auto* pval = evt.get_message_if())
             return *pval;
 
-        if (!std::holds_alternative<connected_event>(evt))
+        if (evt.is_any_disconnect())
             return const_message_ptr{};
     }
 }
 
 bool async_client::try_consume_message(const_message_ptr* msg)
 {
-    event_type evt;
+    if (!que_)
+        throw mqtt::exception(-1, "Consumer not started");
+
+    event evt;
 
     while (true) {
         if (!que_->try_get(&evt))
             return false;
 
-        if (const auto* pval = std::get_if<const_message_ptr>(&evt)) {
+        if (const auto* pval = evt.get_message_if()) {
             *msg = std::move(*pval);
             break;
         }
 
-        if (!std::holds_alternative<connected_event>(evt)) {
+        if (evt.is_any_disconnect()) {
             *msg = const_message_ptr{};
             break;
         }

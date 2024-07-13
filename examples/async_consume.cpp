@@ -95,17 +95,15 @@ int main(int argc, char* argv[])
         while (true) {
             auto evt = cli.consume_event();
 
-            if (const auto* p = std::get_if<mqtt::const_message_ptr>(&evt)) {
+            if (const auto* p = evt.get_message_if()) {
                 auto& msg = *p;
                 if (msg)
                     cout << msg->get_topic() << ": " << msg->to_string() << endl;
             }
-            else if (std::holds_alternative<mqtt::connected_event>(evt))
+            else if (evt.is_connected())
                 cout << "\n*** Connected ***" << endl;
-            else if (std::holds_alternative<mqtt::connection_lost_event>(evt))
+            else if (evt.is_connection_lost())
                 cout << "*** Connection Lost ***" << endl;
-            else
-                cout << "???" << endl;
         }
     }
     catch (const mqtt::exception& exc) {

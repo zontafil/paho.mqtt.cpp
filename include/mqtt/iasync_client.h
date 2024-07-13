@@ -450,6 +450,26 @@ public:
      */
     virtual void stop_consuming() = 0;
     /**
+     * Determines if the consumer queue has been closed.
+     * Once closed, any events in the queue can still be read, but no new
+     * events can be added to it.
+     * @return @true if the consumer queue has been closed, @false
+     *         otherwise.
+     */
+    virtual bool consumer_closed() noexcept {
+        return false;
+    }
+    /**
+     * Determines if the consumer queue is "done" (closed and empty).
+     * Once the queue is done, no more events can be added or removed fom
+     * the queue.
+     * @return @true if the consumer queue is closed and empty, @false
+     *         otherwise.
+     */
+    virtual bool consumer_done() noexcept {
+        return false;
+    }
+    /**
      * Read the next message from the queue.
      * This blocks until a new message arrives.
      * @return The message and topic.
@@ -467,14 +487,19 @@ public:
      * This blocks until a new message arrives.
      * @return The message and topic.
      */
-    virtual event_type consume_event() = 0;
+    virtual event consume_event() {
+        return event{};
+    }
     /**
      * Try to read the next message from the queue without blocking.
      * @param evt Pointer to the value to receive the event
 	 * @return @em true is an event was received, @em false if no event was
 	 *  	   available.
      */
-    virtual bool try_consume_event(event_type* evt) = 0;
+    virtual bool try_consume_event(event* evt) {
+        (void)evt;
+        return false;
+    }
 };
 
 /////////////////////////////////////////////////////////////////////////////

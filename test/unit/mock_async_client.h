@@ -240,8 +240,8 @@ public:
 
     bool try_consume_message(const_message_ptr*) override { return false; }
 
-    event_type consume_event() override { return const_message_ptr{}; }
-    bool try_consume_event(event_type* evt) override { return false; }
+    event consume_event() override { return const_message_ptr{}; }
+    bool try_consume_event(event* evt) override { return false; }
 };
 
 /////////////////////////////////////////////////////////////////////////////
