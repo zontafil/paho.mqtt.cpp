@@ -203,6 +203,17 @@ public:
         return is_done();
     }
     /**
+     * Clear the contents of the queue.
+     * This discards all items in the queue.
+     */
+    void clear() {
+        unique_guard g{lock_};
+        while (!que_.empty())
+            que_.pop();
+        g.unlock();
+        notFullCond_.notify_all();
+    }
+    /**
      * Put an item into the queue.
      * If the queue is full, this will block the caller until items are
      * removed bringing the size less than the capacity.

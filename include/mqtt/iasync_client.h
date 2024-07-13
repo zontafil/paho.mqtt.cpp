@@ -450,6 +450,10 @@ public:
      */
     virtual void stop_consuming() = 0;
     /**
+     * This clears the consumer queue, discarding any pending event.
+     */
+    virtual void clear_consumer() {}
+    /**
      * Determines if the consumer queue has been closed.
      * Once closed, any events in the queue can still be read, but no new
      * events can be added to it.
