@@ -225,6 +225,10 @@ connect_options& connect_options::operator=(connect_options&& opt)
 	return *this;
 }
 
+void connect_options::set_tcp_nodelay(bool nodelay) {
+	opts_.nodelay = nodelay;
+}
+
 void connect_options::set_will(const will_options& will)
 {
 	will_ = will;

@@ -339,6 +339,14 @@ public:
 		return std::chrono::seconds(opts_.maxRetryInterval);
 	}
 	/**
+	 * 	 * Set the TCP_NODELAY option on the client socket. This could resuce
+	 * the latency on small messages as the cost of increased network
+	 * traffic.
+	 *
+	 * @param nodelay @em true to set the TCP_NODELAY option.
+	 */
+	void set_tcp_nodelay(bool nodelay);
+	/**
 	 * Sets whether the server should remember state for the client across
 	 * reconnects. (MQTT v3.x only)
 	 *
