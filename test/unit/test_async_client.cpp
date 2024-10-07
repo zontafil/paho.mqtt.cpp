@@ -1006,3 +1006,23 @@ TEST_CASE("async_client consumer timeout", "[client]")
     cli.start_consuming();
     cli.try_consume_message_until(std::chrono::steady_clock::now());
 }
+
+TEST_CASE("async_client consumer events available", "[client]")
+{
+    async_client cli{GOOD_SERVER_URI, CLIENT_ID};
+    cli.start_consuming();
+    REQUIRE(0 == cli.consumer_events_available());
+
+    token_ptr conn_tok{cli.connect()};
+    REQUIRE(conn_tok);
+    conn_tok->wait();
+    REQUIRE(cli.is_connected());
+    // expect connected_event to be in the queue now
+    REQUIRE(1 == cli.consumer_events_available());
+    event e;
+    REQUIRE(cli.try_consume_event(&e));
+    REQUIRE(0 == cli.consumer_events_available());
+
+    cli.stop_consuming();
+    cli.disconnect()->wait();
+}
