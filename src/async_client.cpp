@@ -315,9 +315,10 @@ void async_client::remove_token(token* tok)
 
 void async_client::set_callback(callback& cb)
 {
-    guard g(lock_);
-    userCallback_ = &cb;
-
+    {
+        guard g(lock_);
+        userCallback_ = &cb;
+    }
     int rc = MQTTAsync_setConnected(cli_, this, &async_client::on_connected);
 
     if (rc == MQTTASYNC_SUCCESS) {
@@ -330,6 +331,7 @@ void async_client::set_callback(callback& cb)
         MQTTAsync_setConnected(cli_, nullptr, nullptr);
 
     if (rc != MQTTASYNC_SUCCESS) {
+        guard g(lock_);
         userCallback_ = nullptr;
         throw exception(rc);
     }
