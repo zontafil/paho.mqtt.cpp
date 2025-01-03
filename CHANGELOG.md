@@ -27,11 +27,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - The `properties` list implements a const iterator
 - Added a `to_string()` and `operator<<()` for reason codes.
 - Cleaned up and fixed a number of example apps.
-    - Most apps no except server URI from the command line
+    - Most apps now except a server URI from the command line
     - 'data_publish' example uses C++17 std::filesystem for creating a file-based encrypted persistence for messages.
 - Reorganized the source repository
 - Completely reformat the sources and added a .clang-format file (a project master and a slightly-different one for headers).
 - Added GitHub CI Action, removing legacy Travis and Appveyor files
+
+
+## [Version 1.4.1](https://github.com/eclipse/paho.mqtt.cpp/compare/v1.4.0..v1.4.1) - (2024-07-09)
+
+- [#458](https://github.com/eclipse/paho.mqtt.cpp/issues/458) Set 'disconnected' handler for the consumer queue.
+
 
 ## [Version 1.4.0](https://github.com/eclipse/paho.mqtt.cpp/compare/v1.3.2..v1.4.0) - (2024-06-16)
 
@@ -45,7 +51,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added some missing Eclipse/Paho legal documents to the repo.
 - Ran a spell-checker over the code and doc files.
 
-- [#498](https://github.com/eclipse/paho.mqtt.cpp/issues/416) Overloaded property constructor to also take a uint32_t 
+- [#498](https://github.com/eclipse/paho.mqtt.cpp/issues/498) Overloaded property constructor to also take a uint32_t 
 - [#491](https://github.com/eclipse/paho.mqtt.cpp/pull/491) add topic_matcher.h to install
 - [#485](https://github.com/eclipse/paho.mqtt.cpp/pull/485) export dependencies
 - [#484](https://github.com/eclipse/paho.mqtt.cpp/pull/484) add token::get_message
