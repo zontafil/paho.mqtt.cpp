@@ -490,7 +490,7 @@ public:
      *  		  more than one.
      * @return The requested property
      */
-    property get(property::code propid, size_t idx = 0);
+    property get(property::code propid, size_t idx = 0) const;
 };
 
 // --------------------------------------------------------------------------

@@ -10,7 +10,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## Version 1.5.0  (Unreleased)
 
 - Required C++ standard raised to C++17
-- CMake minimum required version raised to v3.12
+- CMake minimum required version raised to v3.13
+    - Need a fairly recent CMake for C++17 support (>= v3.12)
+    - [#504](https://github.com/eclipse-paho/paho.mqtt.cpp/issues/504) CMake v3.13 allows INSTALL(TARGETS) to work outside the current directory.
 - Clients always created for v5 persistence format, making it universal for any connection.
     - If the application specifies a version it is kept as a hint for default connections.
     - The version for the connection should be specified in the connect options.
@@ -55,7 +57,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added some missing Eclipse/Paho legal documents to the repo.
 - Ran a spell-checker over the code and doc files.
 
-- [#498](https://github.com/eclipse/paho.mqtt.cpp/issues/498) Overloaded property constructor to also take a uint32_t 
+- [#498](https://github.com/eclipse/paho.mqtt.cpp/issues/498) Overloaded property constructor to also take a uint32_t
 - [#491](https://github.com/eclipse/paho.mqtt.cpp/pull/491) add topic_matcher.h to install
 - [#485](https://github.com/eclipse/paho.mqtt.cpp/pull/485) export dependencies
 - [#484](https://github.com/eclipse/paho.mqtt.cpp/pull/484) add token::get_message
