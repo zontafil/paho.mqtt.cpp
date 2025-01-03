@@ -249,11 +249,16 @@ The library supports connecting to an MQTT server/broker using TCP, SSL/TLS, and
     "ws://<host>:<port>"    - Unsecure websockets
     "wss://<host>:<port>"   - Secure websockets
 
+	"unix://<path>"          - A UNIX-domain connection on the local machine.
+	                           (*nix systems, only)
+
 The "mqtt://" and "tcp://" schemas are identical. They indicate an insecure connection over TCP. The "mqtt://" variation is new for the library, but becoming more common across different MQTT libraries.
 
 Similarly, the "mqtts://" and "ssl://" schemas are identical. They specify a secure connection over SSL/TLS sockets.
 
 Note that to use any of the secure connect options, "mqtts://, "ssl://", or "wss://" you must compile the library with the `PAHO_WITH_SSL=ON` CMake option to include OpenSSL. In addition, you _must_ specify `ssl_options` when you connect to the broker - i.e. you must add an instance of `ssl_options` to the `connect_options` when calling `connect()`.
+
+The use of Unix-domain sockets is only available on *nix-style systems like Linux and macOS. It is not available on Windows. It requires the Paho C library built with the CMake option of PAHO_WITH_UNIX_SOCKETS=ON. This is done by default when building the C library automatically with the Git submodule.
 
 ## _Catch2_ Unit Tests
 

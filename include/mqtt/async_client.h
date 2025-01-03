@@ -3,6 +3,15 @@
 /// Declaration of MQTT async_client class
 /// @date May 1, 2013
 /// @author Frank Pagliughi
+///
+/// @mainpage The Eclipse Paho MQTT Library for C++
+///
+/// @section Introduction
+///
+/// This is the Eclipse Paho MQTT Library for C++. It contains an MQTT
+/// client for memory-managed operating systems like Windows, macOS, Linux,
+/// and other *nix-style systems.
+///
 /////////////////////////////////////////////////////////////////////////////
 
 /*******************************************************************************
@@ -85,9 +94,11 @@ const string COPYRIGHT("Copyright (c) 2013-2024 Frank Pagliughi");
  * "ssl://")
  * @li @em "ws://" - A standard (insecure) WebSocket connection.
  * @li @em "wss:// - A secure websocket connection using SSL/TLS.
+ * @li @em "unix://" - A UNIX-domain connection on the local machine. (*nix
+ * systems, only)
  *
  * The secure connection types assume that the library was built with
- * OpenSSL support, otherwise requesting a secure connection will result in
+ * SSL/TLS support, otherwise requesting a secure connection will result in
  * an error.
  *
  * The communication methods of this class - `connect()`, `publish()`,

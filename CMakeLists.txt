@@ -64,9 +64,9 @@ if(PAHO_WITH_MQTT_C)
     ## Build the Paho C library from the submodule
     set(PAHO_ENABLE_TESTING FALSE CACHE BOOL "No Paho C tests")
     set(PAHO_HIGH_PERFORMANCE TRUE CACHE BOOL "Paho C high performance")
-
-    # TODO: Remove this when the next Paho C update is released.
-    set(CMAKE_POLICY_DEFAULT_CMP0048 NEW)
+    if(NOT WIN32)
+        set(PAHO_WITH_UNIX_SOCKETS TRUE CACHE BOOL "Support for Unix-domain sockets")
+    endif()
 
     add_subdirectory(${PROJECT_SOURCE_DIR}/externals/paho-mqtt-c)
 
