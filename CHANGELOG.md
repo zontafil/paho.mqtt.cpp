@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## Version 1.5.0  (Unreleased)
 
 - Required C++ standard raised to C++17
-- CMake minimum required version raised to v3.12 
+- CMake minimum required version raised to v3.12
 - Clients always created for v5 persistence format, making it universal for any connection.
     - If the application specifies a version it is kept as a hint for default connections.
     - The version for the connection should be specified in the connect options.
@@ -26,12 +26,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `property` can now report the `typeid` of its contained value.
 - The `properties` list implements a const iterator
 - Added a `to_string()` and `operator<<()` for reason codes.
+- `thread_queue` is now closable.
+- Removed the manual implementation of `make_unique<>()`
+- Added `create_options` assignment operators.
 - Cleaned up and fixed a number of example apps.
     - Most apps now except a server URI from the command line
     - 'data_publish' example uses C++17 std::filesystem for creating a file-based encrypted persistence for messages.
 - Reorganized the source repository
 - Completely reformat the sources and added a .clang-format file (a project master and a slightly-different one for headers).
 - Added GitHub CI Action, removing legacy Travis and Appveyor files
+- [#503](https://github.com/eclipse-paho/paho.mqtt.cpp/issues/503) Fixed issue that generated docs were empty.
 
 
 ## [Version 1.4.1](https://github.com/eclipse/paho.mqtt.cpp/compare/v1.4.0..v1.4.1) - (2024-07-09)

@@ -33,31 +33,18 @@ To keep up with the latest announcements for this project, or to ask questions:
 
 **Email:** [Eclipse Paho Mailing List](https://accounts.eclipse.org/mailing-list/paho-dev)
 
-### Unreleased Features in This Branch
+### Working toward Release v1.5
 
-- Required C++ standard raised to C++17
-- CMake minimum required version raised to v3.12 
-- Reformat the sources and added a .clang-format file (a project master and a slightly-different one for headers).
-- Clients always created for v5 persistence format, making it universal for any connection.
-    - If the application specifies a version it is kept as a hint for default connections.
-    - The version for the connection should be specified in the connect options.
+The work toward Version 1.5 is underway, and should be released in early 2025. The features will include:
 
-
-### What's New in v1.4.x
-
-The v1.4 releases were primarily concerned with reorganizing the sources and fixing a number of CMake build issues, particularly to get the Paho C submodule build working with the existing C library. They also fixed some transient build dependencies and may have finally gotten the Windows DLL working properly.
-
-- Ability to build the Paho C library automatically (now working!)
-    - Reworked the CMake build so that 'PAHO_WITH_MQTT_C' option properly compiles the existing Paho C v1.3.13
-    - Moved 'src/externals/' to top-level
-- Reorganized the source tree:
-    - Moved header files to top-level 'include/' directory.
-    - Moved 'src/sampless/' to top-level and renamed 'examples/'
-- Fixed and optimized 'topic_matcher' trie collection
-- Added some missing Eclipse/Paho legal documents to the repo.
-- Several bug fixes.
-
-For a full list of updates see the [CHANGELOG](https://github.com/eclipse/paho.mqtt.cpp/blob/master/CHANGELOG.md)
+- Update the code base to C++17
+- Support for the pending Paho C v1.3.14 release.
+- Support for UNIX-domain sockets
+- Reorganize and reformat the sources and added a .clang-format capability.
+- Create universal client instances that can connect using v3 or v5. (i.e. no more instances that are only v3 capable)
+- Bump the CMake to v3.12
+- Fix a number of CMake build issues
+- Update the GitHub CI
 
 ## Contributing
 
