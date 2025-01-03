@@ -541,7 +541,8 @@ public:
      *  	   token will be passed to callback methods if set.
      */
     delivery_token_ptr publish(
-        string_ref topic, const void* payload, size_t n, int qos, bool retained
+        string_ref topic, const void* payload, size_t n, int qos, bool retained,
+		const properties &props=properties()
     ) override;
     /**
      * Publishes a message to a topic on the server
@@ -567,7 +568,9 @@ public:
      * @return token used to track and wait for the publish to complete. The
      *  	   token will be passed to callback methods if set.
      */
-    delivery_token_ptr publish(string_ref topic, binary_ref payload, int qos, bool retained)
+    delivery_token_ptr publish(string_ref topic, binary_ref payload, int qos, bool retained,
+							   const properties &props=properties()
+							   )
         override;
     /**
      * Publishes a message to a topic on the server

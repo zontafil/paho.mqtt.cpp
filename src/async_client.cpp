@@ -557,18 +557,20 @@ std::vector<delivery_token_ptr> async_client::get_pending_delivery_tokens() cons
 // Publish
 
 delivery_token_ptr async_client::publish(
-    string_ref topic, const void* payload, size_t n, int qos, bool retained
+    string_ref topic, const void* payload, size_t n, int qos, bool retained,
+    const properties& props /*=properties()*/
 )
 {
-    auto msg = message::create(std::move(topic), payload, n, qos, retained);
+    auto msg = message::create(std::move(topic), payload, n, qos, retained, props);
     return publish(std::move(msg));
 }
 
 delivery_token_ptr async_client::publish(
-    string_ref topic, binary_ref payload, int qos, bool retained
+    string_ref topic, binary_ref payload, int qos, bool retained,
+    const properties& props /*=properties()*/
 )
 {
-    auto msg = message::create(std::move(topic), std::move(payload), qos, retained);
+    auto msg = message::create(std::move(topic), std::move(payload), qos, retained, props);
     return publish(std::move(msg));
 }
 

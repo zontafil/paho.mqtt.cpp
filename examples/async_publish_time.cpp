@@ -141,8 +141,7 @@ int main(int argc, char* argv[])
         signal(SIGINT, ctrlc_handler);
 
         // Sync clock to start of delta period
-        while (timestamp() % DELTA_MS != 0)
-            ;
+        while (timestamp() % DELTA_MS != 0);
 
         uint64_t t = timestamp(), tlast = t, tstart = t;
         top.publish(to_string(t));

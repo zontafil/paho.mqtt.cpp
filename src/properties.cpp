@@ -262,8 +262,9 @@ properties& properties::operator=(properties&& rhs)
 
 property properties::get(property::code propid, size_t idx /*=0*/) const
 {
-    MQTTProperty* prop =
-        MQTTProperties_getPropertyAt(&props_, MQTTPropertyCodes(propid), int(idx));
+    MQTTProperty* prop = MQTTProperties_getPropertyAt(
+        const_cast<MQTTProperties*>(&props_), MQTTPropertyCodes(propid), int(idx)
+    );
     if (!prop)
         throw bad_cast();
 

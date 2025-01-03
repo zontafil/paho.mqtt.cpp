@@ -207,7 +207,8 @@ public:
      *  	   token will be passed to callback methods if set.
      */
     virtual delivery_token_ptr publish(
-        string_ref topic, const void* payload, size_t n, int qos, bool retained
+        string_ref topic, const void* payload, size_t n, int qos, bool retained,
+		const properties &props=properties()
     ) = 0;
     /**
      * Publishes a message to a topic on the server
@@ -249,7 +250,8 @@ public:
      *  	   token will be passed to callback methods if set.
      */
     virtual delivery_token_ptr publish(
-        string_ref topic, binary_ref payload, int qos, bool retained
+        string_ref topic, binary_ref payload, int qos, bool retained,
+		const properties &props=properties()
     ) = 0;
     /**
      * Publishes a message to a topic on the server.
