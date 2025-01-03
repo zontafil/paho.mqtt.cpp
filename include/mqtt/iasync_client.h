@@ -483,7 +483,7 @@ public:
      * as the event count may change between checking the size and actual retrieval.
      * @return the number of events in the queue.
      */
-    virtual std::size_t consumer_events_available() const { return 0; }
+    virtual std::size_t consumer_queue_size() const { return 0; }
     /**
      * Read the next message from the queue.
      * This blocks until a new message arrives.

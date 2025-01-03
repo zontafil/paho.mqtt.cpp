@@ -822,11 +822,8 @@ public:
      * as the event count may change between checking the size and actual retrieval.
      * @return the number of events in the queue.
      */
-    std::size_t consumer_events_available() const override {
-        if (que_)
-            return que_->size();
-        else
-            return 0;
+    std::size_t consumer_queue_size() const override {
+        return (que_) ? que_->size() : 0;
     }
     /**
      * Read the next message from the queue.

@@ -327,10 +327,9 @@ void async_client::set_callback(callback& cb)
             nullptr /*&async_client::on_delivery_complete*/
         );
     }
-    else
+    else {
         MQTTAsync_setConnected(cli_, nullptr, nullptr);
 
-    if (rc != MQTTASYNC_SUCCESS) {
         guard g(lock_);
         userCallback_ = nullptr;
         throw exception(rc);
