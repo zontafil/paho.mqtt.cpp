@@ -476,6 +476,15 @@ public:
         return false;
     }
     /**
+     * Gets the number of events available for immediate consumption.
+     * Note that this retrieves the number of "raw" events, not messages,
+     * e.g. may include a connected_event which is not returned by try_consume_message().
+     * When polling the queue from multiple threads, prefer using try_consume_event(),
+     * as the event count may change between checking the size and actual retrieval.
+     * @return the number of events in the queue.
+     */
+    virtual std::size_t consumer_events_available() const { return 0; }
+    /**
      * Read the next message from the queue.
      * This blocks until a new message arrives.
      * @return The message and topic.
