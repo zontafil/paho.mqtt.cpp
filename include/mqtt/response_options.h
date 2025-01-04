@@ -93,16 +93,20 @@ public:
      */
     void set_token(const token_ptr& tok);
     /**
-     * Sets the properties for the connect.
-     * @param props The properties to place into the message.
+     * Gets the properties for the response options.
+     */
+    const properties& get_properties() const { return props_; }
+    /**
+     * Sets the properties for the response options.
+     * @param props The properties for the response options.
      */
     void set_properties(const properties& props) {
         props_ = props;
         opts_.properties = props_.c_struct();
     }
     /**
-     * Moves the properties for the connect.
-     * @param props The properties to move into the connect object.
+     * Moves the properties for the response options.
+     * @param props The properties to move into the response options.
      */
     void set_properties(properties&& props) {
         props_ = std::move(props);
