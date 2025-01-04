@@ -7,6 +7,7 @@
 //
 // The sample demonstrates:
 //  - Connecting to an MQTT server/broker
+//  - Using a connect timeout
 //  - Publishing messages
 //  - Default file persistence
 //  - Last will and testament
@@ -41,6 +42,7 @@
 #include "mqtt/async_client.h"
 
 using namespace std;
+using namespace std::chrono;
 
 const string DFLT_SERVER_URI{"mqtt://localhost:1883"};
 const string CLIENT_ID{"paho_cpp_async_publish"};
@@ -144,6 +146,7 @@ int main(int argc, char* argv[])
     client.set_callback(cb);
 
     auto connOpts = mqtt::connect_options_builder()
+                        .connect_timeout(5s)
                         .clean_session()
                         .will(mqtt::message(TOPIC, LWT_PAYLOAD, QOS, false))
                         .finalize();

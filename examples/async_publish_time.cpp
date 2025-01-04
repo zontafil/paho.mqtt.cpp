@@ -20,7 +20,7 @@
 //  - Sampling a value
 //  - Publishing messages using a `topic` object
 //  - Last will and testament
-//  - Callbacks with lambdas
+//  - Callbacks with lambdas (on connect and disconnect)
 //  - Using `create_options`
 //  - Creating options with builder classes
 //  - Offline buffering in the client
@@ -125,6 +125,7 @@ int main(int argc, char* argv[])
     auto connOpts = mqtt::connect_options_builder()
                         .clean_session()
                         .will(willMsg)
+                        .keep_alive_interval(10s)
                         .automatic_reconnect(seconds(1), seconds(10))
                         .finalize();
 
