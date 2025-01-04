@@ -118,12 +118,19 @@ public:
         opts_.retainAsPublished = retainAsPublished ? 1 : 0;
         opts_.retainHandling = (unsigned char)retainHandling;
     }
-/**
- * Expose the underlying C struct for the unit tests.
- */
+    /**
+     * Creates the set of subscribe options from an underlying C struct.
+     * @param opts The Paho C subscribe options
+     */
+    explicit subscribe_options(MQTTSubscribe_options opts) : opts_{opts} {}
+
 #if defined(UNIT_TESTS)
+    /**
+     * Expose the underlying C struct for the unit tests.
+     */
     const auto& c_struct() const { return opts_; }
 #endif
+
     /**
      * Gets the value of the "no local" flag.
      * @return Whether the server should send back our own publications, if
