@@ -33,9 +33,9 @@ To keep up with the latest announcements for this project, or to ask questions:
 
 **Email:** [Eclipse Paho Mailing List](https://accounts.eclipse.org/mailing-list/paho-dev)
 
-### Working toward Release v1.5
+### What's New in v1.5.0
 
-The work toward Version 1.5 is underway, and should be released in early 2025. The features will include:
+The latest update moves the codebase to C++17 and adds supoort for UNIX-domain sockets. The update also fixes a number of build issues, and targets the latest Paho C release, v1.3.14.
 
 - Update the code base to C++17
 - Support for the pending Paho C v1.3.14 release.
@@ -85,7 +85,7 @@ This requires the CMake option `PAHO_WITH_MQTT_C` set.
 ```
 $ git clone https://github.com/eclipse/paho.mqtt.cpp
 $ cd paho.mqtt.cpp
-$ git co v1.4.1
+$ git co v1.5.0
 
 $ git submodule init
 $ git submodule update
@@ -161,7 +161,7 @@ If the Paho C library is not already installed, the recommended version can be b
 ```
 $ git clone https://github.com/eclipse/paho.mqtt.cpp
 $ cd paho.mqtt.cpp
-$ git co v1.4.1
+$ git co v1.5.0
 $ git submodule init
 $ git submodule update
 
@@ -249,7 +249,7 @@ The library supports connecting to an MQTT server/broker using TCP, SSL/TLS, and
     "ws://<host>:<port>"    - Unsecure websockets
     "wss://<host>:<port>"   - Secure websockets
 
-	"unix://<path>"          - A UNIX-domain connection on the local machine.
+	"unix://<path>"          - A UNIX-domain socket on the local machine.
 	                           (*nix systems, only)
 
 The "mqtt://" and "tcp://" schemas are identical. They indicate an insecure connection over TCP. The "mqtt://" variation is new for the library, but becoming more common across different MQTT libraries.

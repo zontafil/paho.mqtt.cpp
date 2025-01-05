@@ -7,9 +7,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## Version 1.5.0  (Unreleased)
+## [Version 1.5.0](https://github.com/eclipse/paho.mqtt.cpp/compare/v1.4.1..v1.5.0) - (2025-01-10)
 
-- Required C++ standard raised to C++17
+- Code base updated to to C++17
+    - Now a C++17 compiler is required to compile the library
 - CMake minimum required version raised to v3.13
     - Need a fairly recent CMake for C++17 support (>= v3.12)
     - [#504](https://github.com/eclipse-paho/paho.mqtt.cpp/issues/504) CMake v3.13 allows INSTALL(TARGETS) to work outside the current directory.
@@ -29,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - The `properties` list implements a const iterator
 - Added a `to_string()` and `operator<<()` for reason codes.
 - `thread_queue` is now closable.
+- Added documentation for UNIX domain sockets coming in with Paho C v1.3.14
 - Removed the manual implementation of `make_unique<>()`
 - Added `create_options` assignment operators.
 - Cleaned up and fixed a number of example apps.
@@ -37,6 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Reorganized the source repository
 - Completely reformat the sources and added a .clang-format file (a project master and a slightly-different one for headers).
 - Added GitHub CI Action, removing legacy Travis and Appveyor files
+- [#451](https://github.com/eclipse-paho/paho.mqtt.cpp/issues/451) Added low keep alive to async_publish_time to test connected/connection_lost callbacks
 - [#503](https://github.com/eclipse-paho/paho.mqtt.cpp/issues/503) Fixed issue that generated docs were empty.
 - [#518](https://github.com/eclipse-paho/paho.mqtt.cpp/pull/518) Add function for checking async consumer event queue size
 - [#519](https://github.com/eclipse-paho/paho.mqtt.cpp/pull/519) Fix potential deadlock in set_callback
