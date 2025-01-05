@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
         // Note that we start the connection, but don't wait for completion.
         // We configured to allow publishing before a successful connection.
         cout << "Starting connection..." << endl;
-        cli.connect(connOpts)->wait();
+        cli.connect(connOpts);
 
         auto top = mqtt::topic(cli, "data/time", QOS);
         cout << "Publishing data..." << endl;
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
             this_thread::sleep_for(SAMPLE_PERIOD);
 
             t = timestamp();
-            // cout << t << endl;
+
             if (abs(int(t - tlast)) >= DELTA_MS)
                 top.publish(to_string(tlast = t));
 
