@@ -826,8 +826,102 @@ public:
         return (que_) ? que_->size() : 0;
     }
     /**
-     * Read the next message from the queue.
+     * Read the next client event from the queue.
      * This blocks until a new message arrives.
+     * If the consumer queue is closed, this returns a shutdown event.
+     * @return The client event.
+     */
+    event consume_event() override;
+    /**
+     * Try to read the next client event without blocking.
+     * @param evt Pointer to the value to receive the event
+	 * @return @em true if an event was read, @em false if no
+	 *  	   event was available.
+     */
+    bool try_consume_event(event* evt) override;
+    /**
+     * Waits a limited time for a client event to appear.
+     * @param evt Pointer to the value to receive the event.
+     * @param relTime The maximum amount of time to wait for an event.
+     * @return @em true if an event was read, @em false if a timeout
+     *  	   occurred.
+     */
+    template <typename Rep, class Period>
+    bool try_consume_event_for(
+        event* evt, const std::chrono::duration<Rep, Period>& relTime
+    ) {
+        if (!que_)
+            throw mqtt::exception(-1, "Consumer not started");
+
+        try {
+            return que_->try_get_for(evt, relTime);
+        }
+        catch (queue_closed&) {
+            *evt = event{shutdown_event{}};
+            return true;
+        }
+    }
+    /**
+     * Waits a limited time for a client event to arrive.
+	 * @param relTime The maximum amount of time to wait for an event.
+	 * @return The event that was received. It will contain empty message on
+	 *  	   timeout.
+     */
+    template <typename Rep, class Period>
+    event try_consume_event_for(const std::chrono::duration<Rep, Period>& relTime) {
+        event evt;
+        try {
+            que_->try_get_for(&evt, relTime);
+        }
+        catch (queue_closed&) {
+            evt = event{shutdown_event{}};
+        }
+        return evt;
+    }
+    /**
+     * Waits until a specific time for a client event to appear.
+     * @param evt Pointer to the value to receive the event.
+     * @param absTime The time point to wait until, before timing out.
+	 * @return @em true if an event was recceived, @em false if a timeout
+	 *  	   occurred.
+     */
+    template <class Clock, class Duration>
+    bool try_consume_event_until(
+        event* evt, const std::chrono::time_point<Clock, Duration>& absTime
+    ) {
+        if (!que_)
+            throw mqtt::exception(-1, "Consumer not started");
+
+        try {
+            return que_->try_get_until(evt, absTime);
+        }
+        catch (queue_closed&) {
+            *evt = event{shutdown_event{}};
+            return true;
+        }
+    }
+    /**
+     * Waits until a specific time for a client event to appear.
+	 * @param absTime The time point to wait until, before timing out.
+	 * @return The event that was received. It will contain empty message on
+	 *  	   timeout.
+     */
+    template <class Clock, class Duration>
+    event try_consume_event_until(const std::chrono::time_point<Clock, Duration>& absTime
+    ) {
+        event evt;
+        try {
+            que_->try_get_until(&evt, absTime);
+        }
+        catch (queue_closed&) {
+            evt = event{shutdown_event{}};
+        }
+        return evt;
+    }
+    /**
+     * Read the next message from the queue.
+     * This blocks until a new message arrives or until a disconnect or
+     * shutdown occurs.
      * @return The message and topic.
      */
     const_message_ptr consume_message() override;
@@ -855,7 +949,7 @@ public:
         event evt;
 
 		while (true) {
-			if (!que_->try_get_for(&evt, relTime))
+			if (!try_consume_event_for(&evt, relTime))
 				return false;
 
 			if (const auto* pval = evt.get_message_if()) {
@@ -901,7 +995,7 @@ public:
         event evt;
 
 		while (true) {
-			if (!que_->try_get_until(&evt, absTime))
+			if (!try_consume_event_until(&evt, absTime))
 				return false;
 
 			if (const auto* pval = evt.get_message_if()) {
@@ -929,76 +1023,6 @@ public:
         const_message_ptr msg;
         this->try_consume_message_until(&msg, absTime);
         return msg;
-    }
-    /**
-     * Read the next message from the queue.
-     * This blocks until a new message arrives.
-     * @return The message and topic.
-     */
-    event consume_event() override { return que_->get(); }
-    /**
-     * Try to read the next message from the queue without blocking.
-     * @param evt Pointer to the value to receive the event
-	 * @return @em true if an event was read, @em false if no
-	 *  	   event was available.
-     */
-    bool try_consume_event(event* evt) override { return que_->try_get(evt); }
-    /**
-     * Waits a limited time for a message to arrive.
-     * @param evt Pointer to the value to receive the event.
-     * @param relTime The maximum amount of time to wait for an event.
-     * @return @em true if an event was read, @em false if a timeout
-     *  	   occurred.
-     */
-    template <typename Rep, class Period>
-    bool try_consume_event_for(
-        event* evt, const std::chrono::duration<Rep, Period>& relTime
-    ) {
-        if (!que_)
-            throw mqtt::exception(-1, "Consumer not started");
-
-        return que_->try_get_for(evt, relTime);
-    }
-    /**
-     * Waits a limited time for an event to arrive.
-	 * @param relTime The maximum amount of time to wait for an event.
-	 * @return The event that was received. It will contain empty message on
-	 *  	   timeout.
-     */
-    template <typename Rep, class Period>
-    event try_consume_event_for(const std::chrono::duration<Rep, Period>& relTime) {
-        event evt;
-        que_->try_get_for(&evt, relTime);
-        return evt;
-    }
-    /**
-     * Waits until a specific time for an event to appear.
-     * @param evt Pointer to the value to receive the event.
-     * @param absTime The time point to wait until, before timing out.
-	 * @return @em true if an event was recceived, @em false if a timeout
-	 *  	   occurred.
-     */
-    template <class Clock, class Duration>
-    bool try_consume_event_until(
-        event* evt, const std::chrono::time_point<Clock, Duration>& absTime
-    ) {
-        if (!que_)
-            throw mqtt::exception(-1, "Consumer not started");
-
-        return que_->try_get_until(evt, absTime);
-    }
-    /**
-     * Waits until a specific time for an event to appear.
-	 * @param absTime The time point to wait until, before timing out.
-	 * @return The event that was received. It will contain empty message on
-	 *  	   timeout.
-     */
-    template <class Clock, class Duration>
-    event try_consume_event_until(const std::chrono::time_point<Clock, Duration>& absTime
-    ) {
-        event evt;
-        que_->try_get_until(&evt, absTime);
-        return evt;
     }
 };
 

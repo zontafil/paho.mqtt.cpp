@@ -53,6 +53,9 @@ struct disconnected_event
     ReasonCode reasonCode;
 };
 
+/** Event for when the consumer queue is shutdown from another thread */
+struct shutdown_event { };
+
 
 /* Event for when a message arrives is just a message pointer */
 
@@ -83,7 +86,7 @@ class event
 public:
     /** The variant type for any possible event. */
     using event_type = std::variant<
-        const_message_ptr, connected_event, connection_lost_event, disconnected_event>;
+        const_message_ptr, connected_event, connection_lost_event, disconnected_event, shutdown_event>;
 
 private:
     event_type evt_{};
@@ -124,6 +127,11 @@ public:
      * @param evt A disconnected event.
      */
     event(disconnected_event evt) : evt_{std::move(evt)} {}
+    /**
+     * Constructs a 'shutdown' event.
+     * @param evt A shutdown event.
+     */
+    event(shutdown_event evt) : evt_{std::move(evt)} {}
     /**
      * Copy constructor.
      * @param evt The event to copy.
@@ -196,13 +204,22 @@ public:
         return std::holds_alternative<disconnected_event>(evt_);
     }
     /**
-     * Determines if this is any type of client disconnect.
+     * Determines if this event is an internal shutdown request.
+     * @return @em true if this event is a shutdown request, @em false
+     *         otherwise.
+     */
+    bool is_shutdown() const {
+        return std::holds_alternative<disconnected_event>(evt_);
+    }
+    /**
+     * Determines if this is any type of client disconnect or shutdown.
      * @return @em true if this event is any type of client disconnect such
-     *         as a 'connection lost' or 'disconnected' event.
+     *         as a 'connection lost', 'disconnected', or shutdown event.
      */
     bool is_any_disconnect() const {
         return std::holds_alternative<connection_lost_event>(evt_)
-            || std::holds_alternative<disconnected_event>(evt_);
+            || std::holds_alternative<disconnected_event>(evt_)
+            || std::holds_alternative<shutdown_event>(evt_);
     }
     /**
      * Gets the message from the event, iff this is a message event.

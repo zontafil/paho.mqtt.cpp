@@ -40,6 +40,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - [#503](https://github.com/eclipse-paho/paho.mqtt.cpp/issues/503) Fixed issue that generated docs were empty.
 - [#518](https://github.com/eclipse-paho/paho.mqtt.cpp/pull/518) Add function for checking async consumer event queue size
 - [#519](https://github.com/eclipse-paho/paho.mqtt.cpp/pull/519) Fix potential deadlock in set_callback
+- [#524](https://github.com/eclipse-paho/paho.mqtt.cpp/issues/524) Fixed copy and move operations for 'subscribe_options'. Added unit tests.
 
 
 ## [Version 1.4.1](https://github.com/eclipse/paho.mqtt.cpp/compare/v1.4.0..v1.4.1) - (2024-07-09)

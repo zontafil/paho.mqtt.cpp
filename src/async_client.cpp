@@ -879,6 +879,31 @@ void async_client::stop_consuming()
     }
 }
 
+event async_client::consume_event()
+{
+    event evt;
+    try {
+        evt = que_->get();
+    }
+    catch (queue_closed&) {
+        evt = event{shutdown_event{}};
+    }
+    return evt;
+}
+
+bool async_client::try_consume_event(event* evt)
+{
+    bool res = false;
+    try {
+        res = que_->try_get(evt);
+    }
+    catch (queue_closed&) {
+        *evt = event{shutdown_event{}};
+        res = true;
+    }
+    return res;
+}
+
 const_message_ptr async_client::consume_message()
 {
     if (!que_)
@@ -887,7 +912,7 @@ const_message_ptr async_client::consume_message()
     // For backward compatibility we ignore the 'connected' events,
     // whereas disconnected/lost return an empty pointer.
     while (true) {
-        auto evt = que_->get();
+        auto evt = consume_event();
 
         if (const auto* pval = evt.get_message_if())
             return *pval;
@@ -905,7 +930,7 @@ bool async_client::try_consume_message(const_message_ptr* msg)
     event evt;
 
     while (true) {
-        if (!que_->try_get(&evt))
+        if (!try_consume_event(&evt))
             return false;
 
         if (const auto* pval = evt.get_message_if()) {
