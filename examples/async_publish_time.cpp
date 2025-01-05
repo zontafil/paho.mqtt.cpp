@@ -62,7 +62,7 @@ const std::string DFLT_SERVER_URI{"mqtt://localhost:1883"};
 const int QOS = 1;
 
 // How often to sample the "data"
-const auto SAMPLE_PERIOD = milliseconds(5);
+const auto SAMPLE_PERIOD = 5ms;
 
 // How much the "data" needs to change before we publish a new value.
 const int DELTA_MS = 100;
@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
         // Note that we start the connection, but don't wait for completion.
         // We configured to allow publishing before a successful connection.
         cout << "Starting connection..." << endl;
-        cli.connect(connOpts);
+        cli.connect(connOpts)->wait();
 
         auto top = mqtt::topic(cli, "data/time", QOS);
         cout << "Publishing data..." << endl;
