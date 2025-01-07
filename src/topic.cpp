@@ -18,6 +18,8 @@
 
 #include "mqtt/topic.h"
 
+#include <algorithm>
+
 #include "mqtt/async_client.h"
 
 namespace mqtt {
@@ -94,11 +96,9 @@ bool topic_filter::has_wildcards(const string& filter)
 
 bool topic_filter::has_wildcards() const
 {
-    for (auto& f : fields_) {
-        if (f == "+" || f == "#")
-            return true;
-    }
-    return false;
+    return std::any_of(fields_.cbegin(), fields_.cend(), [](const auto& f) {
+        return (f == "+" || f == "#");
+    });
 }
 
 // See if the topic matches this filter.

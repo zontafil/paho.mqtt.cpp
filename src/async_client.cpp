@@ -31,6 +31,8 @@
 #include "mqtt/response_options.h"
 #include "mqtt/token.h"
 
+#define UNUSED(x) (void)(x)
+
 namespace mqtt {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -322,7 +324,7 @@ void async_client::set_callback(callback& cb)
     int rc = MQTTAsync_setConnected(cli_, this, &async_client::on_connected);
 
     if (rc == MQTTASYNC_SUCCESS) {
-        rc = MQTTAsync_setCallbacks(
+        MQTTAsync_setCallbacks(
             cli_, this, &async_client::on_connection_lost, &async_client::on_message_arrived,
             nullptr /*&async_client::on_delivery_complete*/
         );
@@ -425,6 +427,7 @@ token_ptr async_client::connect(connect_options opts)
         throw exception(rc);
     }
 
+    UNUSED(tmpTok);
     return connTok_;
 }
 
@@ -439,6 +442,7 @@ token_ptr async_client::connect(connect_options opts, void* userContext, iaction
     else
         opts.opts_.cleansession = 0;
 
+    // Keep the old connTok_ alive (see above)
     auto tmpTok = connTok_;
     connTok_ = token::create(token::Type::CONNECT, *this, userContext, cb);
     add_token(connTok_);
@@ -454,6 +458,7 @@ token_ptr async_client::connect(connect_options opts, void* userContext, iaction
         throw exception(rc);
     }
 
+    UNUSED(tmpTok);
     return connTok_;
 }
 
@@ -534,10 +539,12 @@ delivery_token_ptr async_client::get_pending_delivery_token(int msgID) const
 
     if (msgID > 0) {
         guard g(lock_);
-        for (const auto& t : pendingDeliveryTokens_) {
-            if (t->get_message_id() == msgID)
-                return t;
-        }
+        const auto it = std::find_if(
+            pendingDeliveryTokens_.cbegin(), pendingDeliveryTokens_.cend(),
+            [msgID](const auto& t) { return t->get_message_id() == msgID; }
+        );
+        if (it != pendingDeliveryTokens_.end())
+            return *it;
     }
     return delivery_token_ptr();
 }
