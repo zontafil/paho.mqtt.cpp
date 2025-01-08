@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [Version 1.5.0](https://github.com/eclipse/paho.mqtt.cpp/compare/v1.4.1..v1.5.0) - (2025-01-10)
+## [Version 1.5.0](https://github.com/eclipse/paho.mqtt.cpp/compare/v1.4.1..v1.5.0) - (2025-01-07)
 
 - Code base updated to to C++17
     - Now a C++17 compiler is required to compile the library
@@ -22,6 +22,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     - New client constructor that takes just the options object
     - The client caches a const `create_options` struct with all the creation parameters
     - Client creation internally simplified without breaking the public API
+- Expanded the message constmer to be a full client "event" consumer.
+    - The events are for *connected, connection_lost, disconnected, message arrived,* and application *shutdown.*
+    - The application can get client state change notifications without resorting to callbacks.
 - There's a new `persistence_type` (std::variant) that can hold any of the persistence specifiers (none, file directory, or user interface).
 - Most of the class static constants are now `constexpr`.
 - Removed the fake `ReasonCode::MQTTPP_V3_CODE`. Now all reason codes in a v3 connection are SUCCESS.
@@ -33,12 +36,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added documentation for UNIX domain sockets coming in with Paho C v1.3.14
 - Removed the manual implementation of `make_unique<>()`
 - Added `create_options` assignment operators.
+- Fixed some corner cases for topic_filter::matches()
 - Cleaned up and fixed a number of example apps.
     - Most apps now except a server URI from the command line
     - 'data_publish' example uses C++17 std::filesystem for creating a file-based encrypted persistence for messages.
+- Updated local CI (buildtst.sh) for current compilers and unit tests.
 - Reorganized the source repository
 - Completely reformat the sources and added a .clang-format file (a project master and a slightly-different one for headers).
 - Added GitHub CI Action, removing legacy Travis and Appveyor files
+- [#410](https://github.com/eclipse-paho/paho.mqtt.cpp/issues/410) Added 'shutdown_event' to the event consumer and reworked consumer to prevent propagating exceptions on shutdown.
 - [#451](https://github.com/eclipse-paho/paho.mqtt.cpp/issues/451) Added low keep alive to async_publish_time to test connected/connection_lost callbacks
 - [#503](https://github.com/eclipse-paho/paho.mqtt.cpp/issues/503) Fixed issue that generated docs were empty.
 - [#518](https://github.com/eclipse-paho/paho.mqtt.cpp/pull/518) Add function for checking async consumer event queue size
