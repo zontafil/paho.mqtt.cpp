@@ -125,7 +125,7 @@ $ sudo apt-get install doxygen graphviz
 
 Unit tests are built using _Catch2_.
 
-_Catch2_ can be found here: [Catch2](https://github.com/catchorg/Catch2).  You must download and install _Catch2_ to build and run the unit tests locally.
+_Catch2_ can be found here: [Catch2](https://github.com/catchorg/Catch2).  You must download and install _Catch2_ to build and run the unit tests locally. Currently _Catch2_ versions v2.x and v3.x are supported.
 
 #### Building the Paho C library
 
