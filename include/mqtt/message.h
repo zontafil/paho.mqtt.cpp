@@ -74,6 +74,8 @@ private:
     /** The properties for the message  */
     properties props_;
 
+    std::string EMPTY_STR;
+
     /** The client has special access. */
     friend class async_client;
 
@@ -259,7 +261,9 @@ public:
      * @return The topic string for the message.
      */
     const string& get_topic() const {
-        static const string EMPTY_STR;
+        // return EMPTY_STR;
+        // static const string EMPTY_STR;
+        // return EMPTY_STR;
         return topic_ ? topic_.str() : EMPTY_STR;
     }
     /**
@@ -281,7 +285,7 @@ public:
      * Gets the payload as a string
      */
     const string& get_payload_str() const {
-        static const string EMPTY_STR;
+        // static const string EMPTY_STR;
         return payload_ ? payload_.str() : EMPTY_STR;
     }
     /**
@@ -388,7 +392,7 @@ using const_message_ptr = message::const_ptr_t;
  */
 inline message_ptr make_message(
     string_ref topic, const void* payload, size_t len, int qos, bool retained,
-	const properties& props = properties()
+    const properties& props = properties()
 ) {
     return mqtt::message::create(std::move(topic), payload, len, qos, retained, props);
 }
@@ -413,7 +417,7 @@ inline message_ptr make_message(string_ref topic, const void* payload, size_t le
  */
 inline message_ptr make_message(
     string_ref topic, binary_ref payload, int qos, bool retained,
-	const properties& props = properties()
+    const properties& props = properties()
 ) {
     return mqtt::message::create(std::move(topic), std::move(payload), qos, retained, props);
 }
